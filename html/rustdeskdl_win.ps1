@@ -172,7 +172,7 @@ function get-GithubRelease {
     $DownloadList | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
     $DownloadList | Where-Object -Property File -eq $($DownloadSelection.File) | Select-Object -Property File, URL | ForEach-Object {
         write-host "Downloading $($_.File) from $($_.URL) to .\$Destination\$($_.File)" -ForegroundColor Yellow
-        DownloadFn -url $($_.URL) -targetFile .\$Destination\$($_.File)
+        DownloadLegacy -url $($_.URL) -targetFile .\$Destination\$($_.File)
         $global:RustdeskUpdateExe = ".$Destination\$($_.File)"
         #        irm -Uri $($_.URL) -OutFile .\$Destination\$($_.File)
     }
