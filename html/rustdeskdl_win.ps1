@@ -216,9 +216,9 @@ function get-GithubRelease {
         $DownloadList += @(
             [PSCustomObject]@{
                 Id   = $i
-                File = $($_.split('/') | Select-Object -Last 1)
+                File = ($Filepart=$($_.split('/') | Select-Object -Last 1))
                 URL  = $_
-                Destination = "$($Destination)\($($_.split('/') | Select-Object -Last 1))"
+                Destination = $Filepart
                 Size = $(get-DownloadSize -URL $($_))
             }
         ) 
