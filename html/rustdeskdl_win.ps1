@@ -164,14 +164,14 @@ function get-GithubRelease {
  
  $DownloadSelection = @{}
  $DownloadList.File | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
-write-host "Destination File: $Destination\$($DownloadSelection)"
+write-host "1 Destination File: $Destination\$($DownloadSelection)"
 }
 $DownloadList 
 | Where-Object -Property File -eq $DownloadSelection
 | Select-Object -Property File, URL | ForEach-Object {
-    Write-host "Downloading $($_.File) from $($_.URL) to $Destination\$($_.File)"
+    Write-host "2 Downloading $($_.File) from $($_.URL) to $Destination\$($_.File)"
     DownloadGithubRelease -url $($_.URL) -targetFile $Destination\$($_.File)
 }
 
 get-GithubRelease -Owner 'rustdesk' -Project 'rustdesk' -Tag 'nightly' -Destination $PWD
-write-host "Destination File: $Destination\$($DownloadSelection)" -foregroundcolor:green
+write-host "3 Destination File: $Destination\$($DownloadSelection)" -foregroundcolor:green
