@@ -165,7 +165,7 @@ function get-GithubRelease {
  $DownloadSelection = @{}
  $DownloadList.File | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
 write-host "1 Destination File: $Destination\$($DownloadSelection)"
-}
+
 $DownloadList 
 | Where-Object -Property File -eq $DownloadSelection
 | Select-Object -Property File, URL | ForEach-Object {
