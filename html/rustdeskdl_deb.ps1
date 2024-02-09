@@ -3,7 +3,7 @@ $DownloadControl = @{
     Project = 'rustdesk'
     Tag     = 'nightly'
     }
-$StandardFilter = '64.deb'
+$StandardFilter = 'x86_64.deb'
 
 function get-DownloadSize {
     param (
