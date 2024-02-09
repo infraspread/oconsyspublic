@@ -153,7 +153,7 @@ function get-GithubRelease {
     $base64AuthInfo = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($GITHUB_TOKEN)"))
     
     #$Releases = (Invoke-RestMethod -Uri $URL -Headers @{authorization = "Basic $base64AuthInfo" }).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" } 
-    $Releases = (Invoke-RestMethod -Uri $URL).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" } 
+    $Releases = (Invoke-RestMethod -Uri $URL).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" }
     $i = 0
         
     $Releases | ForEach-Object {
