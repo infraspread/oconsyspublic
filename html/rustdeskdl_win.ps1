@@ -76,7 +76,7 @@ function get-GithubRelease {
                 Id   = $i
                 File = $($_.split('/') | Select-Object -Last 1)
                 URL  = $_
-                Size = get-DownloadSize -URL $_
+                Size = (get-DownloadSize -URL $_)
             }
         ) 
     }
