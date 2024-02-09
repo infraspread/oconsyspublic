@@ -218,7 +218,7 @@ function get-GithubRelease {
                 Id   = $i
                 File = $($_.split('/') | Select-Object -Last 1)
                 URL  = $_
-                Destination = $Destination
+                Destination = "$($Destination)\($($_.split('/') | Select-Object -Last 1))"
                 Size = $(get-DownloadSize -URL $($_))
             }
         ) 
@@ -226,10 +226,11 @@ function get-GithubRelease {
      
     $DownloadSelection = @{}
     $DownloadList | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
-    $DownloadList | Where-Object -Property File -eq $($DownloadSelection.File) | Select-Object -Property File, URL | ForEach-Object {
-        write-host "Downloading $($_.File) from $($_.URL) to .\$Destination\$($_.File)" -ForegroundColor Yellow
-        DownloadLegacy -url $($_.URL) -targetFile .\$Destination\$($_.File)
-        $global:RustdeskUpdateExe = ".$Destination\$($_.File)"
+    $DownloadList | Where-Object -Property File -eq $($DownloadSelection.File) | Select-Object -Property File, URL, Destination | ForEach-Object {
+        #write-host "Downloading $($_.File) from $($_.URL) to .\$Destination\$($_.File)" -ForegroundColor Yellow
+        write-host "Downloading $($_.File) from $($_.URL) to $($_.Destination)" -ForegroundColor Yellow
+        DownloadLegacy -url $($_.URL) -targetFile $($_.Destination)
+        $global:RustdeskUpdateExe = $($_.Destination)
         #        irm -Uri $($_.URL) -OutFile .\$Destination\$($_.File)
     }
 }
