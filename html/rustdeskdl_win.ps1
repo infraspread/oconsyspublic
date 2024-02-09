@@ -4,44 +4,46 @@ $DownloadControl = @{
     Tag     = 'nightly'
 }
 $StandardFilter = 'x86_64.exe'
-[string]$Configuration="=0nI9cGM3ZEcTZET3pVN492d5U3aLt0RVVjQxEjSzlnM38WVEx2btJlU2AVV2UlI6ISeltmIsICdl5mLkFWZyB3chJnZulmLrNXZkR3c1J3LvozcwRHdoJiOikGchJCLiQXZu5CZhVmcwNXYyZmbp5yazVGZ0NXdyJiOikXYsVmciwiI0VmbuQWYlJHczFmcm5Waus2clRGdzVnciojI0N3boJye"
+$global:RustdeskConfig=@'
+rendezvous_server = 'rustdesk.infraspread.net:21116'
+nat_type = 1
+serial = 0
+
+[options]
+api-server = 'https://rustdesk.infraspread.net'
+custom-rendezvous-server = 'rustdesk.infraspread.net'
+relay-server = 'rustdesk.infraspread.net'
+direct-server = 'Y'
+enable-audio = 'N'
+key = 'U6UP6RRmolDUo72ysJ11B5UGKKku9wox5ZwLFSpFw0g='
+allow-remove-wallpaper = 'Y'
+stop-service = 'N'
+'@
+$global:RustdeskDefault=@'
+[options]
+disable_audio = 'Y'
+show_remote_cursor = 'Y'
+collapse_toolbar = 'Y'
+view_style = 'adaptive'
+image_quality = 'low'
+enable_file_transfer = 'Y'
+'@
+
 write-host "Main Time: $(Get-Date)" -ForegroundColor Yellow
 
-function InstallConfigRustDesk {
-    param (
-        [string]$Configuration = '=0nI9cGM3ZEcTZET3pVN492d5U3aLt0RVVjQxEjSzlnM38WVEx2btJlU2AVV2UlI6ISeltmIsICdl5mLkFWZyB3chJnZulmLrNXZkR3c1J3LvozcwRHdoJiOikGchJCLiQXZu5CZhVmcwNXYyZmbp5yazVGZ0NXdyJiOikXYsVmciwiI0VmbuQWYlJHczFmcm5Waus2clRGdzVnciojI0N3boJye', # rustdesk.infraspread.net
-        [string]$RustdeskPath = 'C:\Program Files\RustDesk',
-        [string]$RustdeskUpdateExe,
-        [switch]$Configure,
-        [switch]$InstallOrUpgrade
-    )
-    write-host "InstallConfigRustDesk Time: $(Get-Date)" -ForegroundColor Yellow
-    write-host "Running RustDesk from $RustdeskPath with command line: $cmdline" -ForegroundColor Yellow
-
-    $cmdline = ''
-    if ($Configure) {
-        write-host "config, cmdline: $cmdline" -ForegroundColor Yellow
-        $cmdline += "--config $Configuration"
+function RustdeskWaitService {
+    $global:ServiceName = 'Rustdesk'
+    $global:arrService = Get-Service -Name $($global:ServiceName) -ErrorAction SilentlyContinue
+    if ($null -eq $($global:arrService)) {
+        Set-Location $env:ProgramFiles\RustDesk
+        Start-Process .\rustdesk.exe --install-service
+        Start-Sleep -seconds 20
     }
-
-    if ($InstallOrUpgrade) {
-        write-host "installorupgrade, cmdline: $cmdline" -ForegroundColor Yellow
-        $cmdline += "--silent-install"
-
-        if (test-path $RustdeskUpdateExe) {
-            write-host "Running RustDesk update from $RustdeskUpdateExe with command line: $cmdline" -ForegroundColor Yellow
-            write-host "Stopping RustDesk processes / service" -ForegroundColor Yellow
-            Get-Service -Name RustDesk | Stop-Service -Force -ErrorAction SilentlyContinue                
-            Get-Process | Where-Object { $_.Path -eq $RustdeskUpdateExe } | Stop-Process -Force -ErrorAction SilentlyContinue
-            start-process -filepath $RustdeskUpdateExe -argumentlist $cmdline -wait
-        }
-        else {
-            write-host "RustDesk update executable not found at $RustdeskUpdateExe" -ForegroundColor Red
-        }
+    while ($($global:arrService).Status -ne 'Running') {
+        Start-Service $ServiceName -ErrorAction SilentlyContinue
+        Start-Sleep -seconds 8
+        $global:arrService.Refresh()
     }
-    
-    write-host "Running RustDesk from $RustdeskPath with command line: $cmdline" -ForegroundColor Yellow
-    Start-Process -FilePath $RustdeskPath -ArgumentList $cmdline -Wait
 }
 
 function RustdeskMenu {
@@ -50,30 +52,41 @@ function RustdeskMenu {
         [string]$RustdeskUpdateExe
     )
     write-host "RustdeskMenu Time: $(Get-Date)" -ForegroundColor Yellow
+
     $RustdeskMenu = @{
-        'AiO' = 'Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server'
+        'AiO'       = 'Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server'
         'Upgrade'   = 'just upgrade or install RustDesk, leave configuration as is'
         'Configure' = 'just configure RustDesk to use free Infraspread Rustdesk server'
     }
     $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
-    Write-Host "RustdeskAction: $($RustdeskAction.Key))" -ForegroundColor Yellow
-<#     if ($RustdeskAction -eq 'AiO') {
-        write-host "Installing RustDesk and configuring with Infraspread Rendezvous server" -ForegroundColor Yellow
-        write-host "Rustdesk Upgrader: $RustdeskUpdateExe" -ForegroundColor Yellow
-        #InstallConfigRustDesk -Configure -InstallOrUpgrade -RustdeskUpdateExe $RustdeskUpdateExe
-        Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install --config $Configuration" -Wait
-} #>
+    Write-Host "RustdeskAction: $($RustdeskAction.Key)" -ForegroundColor Yellow
     switch ($($RustdeskAction.Key)) {
-        "AiO" { 
+        "AiO" {
             write-host "Installing RustDesk and configuring with Infraspread Rendezvous server" -ForegroundColor Yellow
-            write-host "Rustdesk Upgrader: $RustdeskUpdateExe" -ForegroundColor Yellow
-            #InstallConfigRustDesk -Configure -InstallOrUpgrade -RustdeskUpdateExe $RustdeskUpdateExe
-            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install --config $Configuration" -Wait
+            Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
+            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
+            $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
+            $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
+            $global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
+            RustdeskWaitService
         }
-        "Upgrade" { InstallConfigRustDesk -InstallOrUpgrade -RustdeskUpdateExe $RustdeskUpdateExe }
-        "Configure" { InstallConfigRustDesk -Configure -RustdeskUpdateExe $RustdeskUpdateExe }
+        "Upgrade" {
+            write-host "Upgrading RustDesk" -ForegroundColor Yellow
+            Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
+            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
+            Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
+        }
+        "Configure" { 
+            Get-Service -Name RustDesk | Stop-Service -Force -ErrorAction SilentlyContinue
+            $RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
+            $RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
+            $RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
+            Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
+        }
     }
 }
+
+
 
 
 function DownloadLegacy {
@@ -149,7 +162,7 @@ function get-GithubRelease {
     else {
         $URL = "https://api.github.com/repos/$Owner/$Project/releases/tags/$Tag"
     }
-    $GITHUB_TOKEN="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"
+    $GITHUB_TOKEN = "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"
     $base64AuthInfo = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($GITHUB_TOKEN)"))
     
     #$Releases = (Invoke-RestMethod -Uri $URL -Headers @{authorization = "Basic $base64AuthInfo" }).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" } 
@@ -179,8 +192,4 @@ function get-GithubRelease {
 }
 
 get-GithubRelease @DownloadControl -Destination $targetdir
-write-host "Starting RustDesk download" -ForegroundColor Yellow
-write-host "RustDeskUpdateExe: $RustdeskUpdateExe" -ForegroundColor Cyan
-write-host "Rustdesk Upgrader: $RustdeskUpdateExe" -ForegroundColor Yellow
 RustdeskMenu -RustdeskUpdateExe $RustdeskUpdateExe -InstallOrUpgrade -Configure
-# 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
