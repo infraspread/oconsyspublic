@@ -2,7 +2,8 @@ $DownloadControl = @{
     Owner   = 'rustdesk'
     Project = 'rustdesk'
     Tag     = 'nightly'
-}
+    }
+$StandardFilter = '64.exe' # '64.deb'
 
 function get-DownloadSize {
     param (
@@ -13,7 +14,6 @@ function get-DownloadSize {
     write-host "URL: $URL Size: $DownloadSizeMB MB" -foregroundcolor yellow
     return $DownloadSizeMB
 }
-
 
 function DownloadFn($url, $targetFile) {
     write-host "Downloading: $url" -foregroundcolor yellow
@@ -66,8 +66,7 @@ function get-GithubRelease {
         $URL = "https://api.github.com/repos/$Owner/$Project/releases/tags/$Tag"
     }
     
-    $Releases = (Invoke-RestMethod $URL).assets.browser_download_url
-    
+    $Releases = (Invoke-RestMethod $URL).assets.browser_download_url | Where-Object {$_ -like "*$StandardFilter"} 
     $i = 0
         
     $Releases | ForEach-Object {
