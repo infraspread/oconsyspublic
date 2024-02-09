@@ -4,6 +4,7 @@ $DownloadControl = @{
     Tag     = 'nightly'
 }
 $StandardFilter = 'x86_64.exe'
+
 $global:RustdeskConfig = @'
 rendezvous_server = 'rustdesk.infraspread.net:21116'
 nat_type = 1
@@ -19,6 +20,7 @@ key = 'U6UP6RRmolDUo72ysJ11B5UGKKku9wox5ZwLFSpFw0g='
 allow-remove-wallpaper = 'Y'
 stop-service = 'N'
 '@
+
 $global:RustdeskDefault = @'
 [options]
 disable_audio = 'Y'
@@ -29,7 +31,8 @@ image_quality = 'low'
 enable_file_transfer = 'Y'
 '@
 
-Function Check-RunAsAdministrator() {
+Function test-RunAsAdministrator() {
+    <#
     #Get current user context
     $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
   
@@ -39,21 +42,28 @@ Function Check-RunAsAdministrator() {
     }
     else {
         #Create a new Elevated process to Start PowerShell
-        $ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo "PowerShell";
+        $ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo "pwsh";
         # Specify the current script path and name as a parameter
-        $ElevatedProcess.Arguments = "& '" + $script:MyInvocation.MyCommand.Path + "'"
+        #write-host "& '" + $script:MyInvocation.MyCommand.Path + "'"
+        write-host "& '" + $PSCommandPath + "'"
+        
+        $ElevatedProcess.Arguments = "& '" + $PSScriptRoot + "'"
         #Set the Process to elevated
         $ElevatedProcess.Verb = "runas"
         #Start the new elevated process
         [System.Diagnostics.Process]::Start($ElevatedProcess)
         #Exit from the current, unelevated, process
-        #Exit
- 
+        Exit
+    }
+#>
+    
+    If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        # Relaunch as an elevated process:
+        Start-Process pwsh.exe "-File", ('"{0}"' -f $PSCommandPath) -Verb RunAs
+        exit
     }
 }
- 
-
-
+    
 write-host "Main Time: $(Get-Date)" -ForegroundColor Yellow
 
 function RustdeskWaitService {
@@ -79,9 +89,10 @@ function RustdeskMenu {
     write-host "RustdeskMenu Time: $(Get-Date)" -ForegroundColor Yellow
 
     $RustdeskMenu = @{
-        'AiO'       = 'Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server'
-        'Upgrade'   = 'just upgrade or install RustDesk, leave configuration as is'
-        'Configure' = 'just configure RustDesk to use free Infraspread Rustdesk server'
+        'AiO'        = 'Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server'
+        'Upgrade'    = 'just upgrade or install RustDesk, leave configuration as is'
+        'Configure'  = 'just configure RustDesk to use free Infraspread Rustdesk server'
+        'Chocolatey' = 'Install Chocolatey'
     }
     $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
     Write-Host "RustdeskAction: $($RustdeskAction.Key)" -ForegroundColor Yellow
@@ -108,14 +119,15 @@ function RustdeskMenu {
             $RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
         }
+        "Chocolatey" {
+            write-host "Install Chocolatey" -ForegroundColor Yellow
+            Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        }
     }
     Set-Location $env:ProgramFiles\RustDesk
     .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
     write-host "Successfully Installed Rustdesk, your ID is $RustdeskID" -ForegroundColor Green
 }
-
-
-
 
 function DownloadLegacy {
     param (
@@ -220,6 +232,7 @@ function get-GithubRelease {
 }
 
 #Check Script is running with Elevated Privileges
-Check-RunAsAdministrator
+test-RunAsAdministrator
+
 get-GithubRelease @DownloadControl -Destination $targetdir
 RustdeskMenu -RustdeskUpdateExe $RustdeskUpdateExe -InstallOrUpgrade -Configure

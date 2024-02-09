@@ -1,3 +1,5 @@
+#Requires -RunAsAdministrator
+
 # required Modules: Microsoft Powershell Console GUI Tools (Win/Lin)
 
 function ModulePrerequisites {
