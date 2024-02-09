@@ -84,8 +84,8 @@ function RustdeskMenu {
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
         }
     }
-    $RustdeskID=@({Set-Location $env:ProgramFiles\RustDesk;Start-Process .\rustdesk.exe --get-id})
-    
+    Set-Location $env:ProgramFiles\RustDesk
+    .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
     write-host "Successfully Installed Rustdesk, your ID is $RustdeskID" -ForegroundColor Green
 }
 
