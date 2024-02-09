@@ -169,7 +169,7 @@ function get-GithubRelease {
 $DownloadList 
 | Where-Object -Property File -eq $DownloadSelection
 | Select-Object -Property File, URL | ForEach-Object {
-    Write-Verbose "Downloading $($_.File) from $($_.URL) to $Destination\$($_.File)"
+    Write-host "Downloading $($_.File) from $($_.URL) to $Destination\$($_.File)"
     DownloadGithubRelease -url $($_.URL) -targetFile $Destination\$($_.File)
 }
 
