@@ -174,4 +174,4 @@ $DownloadList
 }
 
 get-GithubRelease -Owner 'rustdesk' -Project 'rustdesk' -Tag 'nightly' -Destination $PWD
-write-host "Destionation File: $Destination\$($_.File)"    
+write-host "Destination File: $Destination\$($_.File)" -foregroundcolor:green
