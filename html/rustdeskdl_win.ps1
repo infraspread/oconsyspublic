@@ -98,7 +98,7 @@ function ModulePrerequisites {
 }
 
 function DownloadGithubRelease($url, $targetFile) {
-
+write-host "URL: $url, Targetfile: $targetFile" -foregroundcolor cyan
     $uri = New-Object "System.Uri" "$url"
     $request = [System.Net.HttpWebRequest]::Create($uri)
     $request.set_Timeout(15000) #15 second timeout
