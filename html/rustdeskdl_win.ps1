@@ -164,7 +164,7 @@ function get-GithubRelease {
  
  $DownloadSelection = @{}
  $DownloadList.File | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
-    
+write-host "Destionation File: $Destination\$($_.File)"    
 }
 $DownloadList 
 | Where-Object -Property File -eq $DownloadSelection
@@ -174,3 +174,4 @@ $DownloadList
 }
 
 get-GithubRelease -Owner 'rustdesk' -Project 'rustdesk' -Tag 'nightly' -Destination $PWD
+write-host "Destionation File: $Destination\$($_.File)"    
