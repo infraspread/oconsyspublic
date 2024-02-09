@@ -6,7 +6,7 @@ $DownloadControl = @{
 $StandardFilter = 'x86_64.exe'
 $GITHUB_TOKEN = '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'
 $base64AuthInfo = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($GITHUB_TOKEN)"))
-[string]$Configuration = '=0nI9cGM3ZEcTZET3pVN492d5U3aLt0RVVjQxEjSzlnM38WVEx2btJlU2AVV2UlI6ISeltmIsICdl5mLkFWZyB3chJnZulmLrNXZkR3c1J3LvozcwRHdoJiOikGchJCLiQXZu5CZhVmcwNXYyZmbp5yazVGZ0NXdyJiOikXYsVmciwiI0VmbuQWYlJHczFmcm5Waus2clRGdzVnciojI0N3boJye' # rustdesk.infraspread.net
+[string]$Configuration="=0nI9cGM3ZEcTZET3pVN492d5U3aLt0RVVjQxEjSzlnM38WVEx2btJlU2AVV2UlI6ISeltmIsICdl5mLkFWZyB3chJnZulmLrNXZkR3c1J3LvozcwRHdoJiOikGchJCLiQXZu5CZhVmcwNXYyZmbp5yazVGZ0NXdyJiOikXYsVmciwiI0VmbuQWYlJHczFmcm5Waus2clRGdzVnciojI0N3boJye"
 write-host "Main Time: $(Get-Date)" -ForegroundColor Yellow
 
 function InstallConfigRustDesk {
