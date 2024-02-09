@@ -10,6 +10,7 @@ function get-DownloadSize {
     )
     $DownloadSizeByte = [int]::Parse(((Invoke-WebRequest $URL -Method Head).Headers.'Content-Length'))
     $DownloadSizeMB = [math]::Round($DownloadSizeByte / 1MB, 2)
+    write-host "URL: $URL Size: $DownloadSizeMB MB" -foregroundcolor yellow
     return $DownloadSizeMB
 }
 
@@ -76,7 +77,7 @@ function get-GithubRelease {
                 Id   = $i
                 File = $($_.split('/') | Select-Object -Last 1)
                 URL  = $_
-                Size = (get-DownloadSize -URL $_)
+                Size = (get-DownloadSize -URL $($_))
             }
         ) 
     }
