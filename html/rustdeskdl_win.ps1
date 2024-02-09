@@ -3,6 +3,7 @@ $DownloadControl = @{
     Project = 'rustdesk'
     Tag     = 'nightly'
 }
+
 $StandardFilter = 'x86_64.exe'
 write-host "My Command TopPath: $PSCommandPath"
 $ScriptPath = $($PSCommandPath)
