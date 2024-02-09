@@ -2,8 +2,67 @@ $DownloadControl = @{
     Owner   = 'rustdesk'
     Project = 'rustdesk'
     Tag     = 'nightly'
+}
+$StandardFilter = 'x86_64.exe'
+
+function InstallConfigRustDesk {
+    param (
+        [string]$Configuration = '=0nI9cGM3ZEcTZET3pVN492d5U3aLt0RVVjQxEjSzlnM38WVEx2btJlU2AVV2UlI6ISeltmIsICdl5mLkFWZyB3chJnZulmLrNXZkR3c1J3LvozcwRHdoJiOikGchJCLiQXZu5CZhVmcwNXYyZmbp5yazVGZ0NXdyJiOikXYsVmciwiI0VmbuQWYlJHczFmcm5Waus2clRGdzVnciojI0N3boJye', # rustdesk.infraspread.net
+        [string]$RustdeskPath = 'C:\Program Files\RustDesk',
+        [string]$RustdeskUpdateExe,
+        [switch]$Configure,
+        [switch]$InstallOrUpgrade
+    )
+write-host "Running RustDesk from $RustdeskPath with command line: $cmdline" -ForegroundColor Yellow
+
+    $cmdline = ''
+    if ($Configure) {
+        write-host "config, cmdline: $cmdline" -ForegroundColor Yellow
+        $cmdline += "--config $Configuration"
     }
-$StandardFilter = '64.exe' # '64.deb'
+
+    if ($InstallOrUpgrade) {
+        write-host "installorupgrade, cmdline: $cmdline" -ForegroundColor Yellow
+        $cmdline += "--silent-install"
+
+        if (test-path $RustdeskUpdateExe) {
+            write-host "Running RustDesk update from $RustdeskUpdateExe with command line: $cmdline" -ForegroundColor Yellow
+            write-host "Stopping RustDesk processes / service" -ForegroundColor Yellow
+            Get-Service -Name RustDesk | Stop-Service -Force -ErrorAction SilentlyContinue                
+            Get-Process | Where-Object { $_.Path -eq $RustdeskUpdateExe } | Stop-Process -Force -ErrorAction SilentlyContinue
+            start-process -filepath $RustdeskUpdateExe -argumentlist $cmdline -wait
+        }
+        else {
+            write-host "RustDesk update executable not found at $RustdeskUpdateExe" -ForegroundColor Red
+        }
+    }
+    
+    write-host "Running RustDesk from $RustdeskPath with command line: $cmdline" -ForegroundColor Yellow
+    Start-Process -FilePath $RustdeskPath -ArgumentList $cmdline -Wait
+}
+
+function RustdeskMenu {
+    param (
+        [string]$RustdeskPath = "C:\Program Files\RustDesk",
+        [string]$RustdeskUpdateExe
+    )
+    
+    $RustdeskMenu = @{
+        AiO       = "Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server"
+        Upgrade   = "just upgrade or install RustDesk, leave configuration as is"
+        Configure = "just configure RustDesk to use free Infraspread Rustdesk server"
+    }
+    $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
+    switch ($RustdeskAction) {
+        "AiO" { 
+            write-host "Installing RustDesk and configuring with Infraspread Rendezvous server" -ForegroundColor Yellow
+            write-host "Rustdesk Upgrader: $RustdeskUpdateExe" -ForegroundColor Yellow
+            InstallConfigRustDesk -Configure -InstallOrUpgrade -RustdeskUpdateExe $RustdeskUpdateExe 
+        }
+        "Upgrade" { InstallConfigRustDesk -InstallOrUpgrade -RustdeskUpdateExe $RustdeskUpdateExe }
+        "Configure" { InstallConfigRustDesk -Configure -RustdeskUpdateExe $RustdeskUpdateExe }
+    }
+}
 
 function get-DownloadSize {
     param (
@@ -66,7 +125,7 @@ function get-GithubRelease {
         $URL = "https://api.github.com/repos/$Owner/$Project/releases/tags/$Tag"
     }
     
-    $Releases = (Invoke-RestMethod $URL).assets.browser_download_url | Where-Object {$_ -like "*$StandardFilter"} 
+    $Releases = (Invoke-RestMethod $URL).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" } 
     $i = 0
         
     $Releases | ForEach-Object {
@@ -88,7 +147,13 @@ function get-GithubRelease {
     | Where-Object -Property File -eq $DownloadSelection
     | Select-Object -Property File, URL | ForEach-Object {
         DownloadFn -url $($_.URL) -targetFile $Destination\$($_.File)
+        $Global:RustdeskUpdateExe = "$($Destination)\$($_.File)"
     }
+
 }
-    
+
+write-host "Starting RustDesk download" -ForegroundColor Yellow
 get-GithubRelease @DownloadControl -Destination $PWD
+write-host "Starting RustDesk Menu" -ForegroundColor Yellow
+write-host "Rustdesk Upgrader: $Global:RustdeskUpdateExe" -ForegroundColor Yellow
+RustdeskMenu -RustdeskUpdateExe RustdeskUpdateExe -InstallOrUpgrade -Configure
