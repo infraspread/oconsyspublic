@@ -4,6 +4,7 @@ $DownloadControl = @{
     Tag     = 'nightly'
 }
 $StandardFilter = 'x86_64.exe'
+write-host "Main Time: $(Get-Date)" -ForegroundColor Yellow
 
 function InstallConfigRustDesk {
     param (
@@ -13,6 +14,7 @@ function InstallConfigRustDesk {
         [switch]$Configure,
         [switch]$InstallOrUpgrade
     )
+    write-host "InstallConfigRustDesk Time: $(Get-Date)" -ForegroundColor Yellow
 write-host "Running RustDesk from $RustdeskPath with command line: $cmdline" -ForegroundColor Yellow
 
     $cmdline = ''
@@ -46,7 +48,7 @@ function RustdeskMenu {
         [string]$RustdeskPath = "C:\Program Files\RustDesk",
         [string]$RustdeskUpdateExe
     )
-    
+    write-host "RustdeskMenu Time: $(Get-Date)" -ForegroundColor Yellow
     $RustdeskMenu = @{
         AiO       = "Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server"
         Upgrade   = "just upgrade or install RustDesk, leave configuration as is"
@@ -64,26 +66,30 @@ function RustdeskMenu {
     }
 }
 
-function get-DownloadSize {
-    param (
-        [string]$URL
-    )
-    $DownloadSizeByte = [int]::Parse(((Invoke-WebRequest $URL -Method Head).Headers.'Content-Length'))
-    $DownloadSizeMB = [math]::Round($DownloadSizeByte / 1MB, 2)
-    write-host "URL: $URL Size: $DownloadSizeMB MB" -foregroundcolor yellow
-    return $DownloadSizeMB
-}
 
 function DownloadLegacy {
     param (
-        $url,
-        $targetFile
-    )
-    write-host "Legacy Downloading: $url to $targetFile" -foregroundcolor Green
-    Invoke-WebRequest -Uri  $url -OutFile $targetFile
-}
+        [string]$url,
+        [string]$targetFile
+        )
+        write-host "DownloadLegacy Time: $(Get-Date)" -ForegroundColor Yellow
+        write-host "Legacy Downloading: $url to $targetFile" -foregroundcolor Green
+        Invoke-WebRequest -Uri  $url -OutFile $targetFile
+        return $targetFile
+    }
 
+    function get-DownloadSize {
+        param (
+            [string]$URL
+        )
+        $DownloadSizeByte = [int]::Parse(((Invoke-WebRequest $URL -Method Head).Headers.'Content-Length'))
+        $DownloadSizeMB = [math]::Round($DownloadSizeByte / 1MB, 2)
+        write-host "URL: $URL Size: $DownloadSizeMB MB" -foregroundcolor yellow
+        return $DownloadSizeMB
+    }
+    
 function DownloadFn($url, $targetFile) {
+    write-host "DownloadFn Time: $(Get-Date)" -ForegroundColor Yellow
     write-host "Downloading: $url" -foregroundcolor yellow
     write-host "To: $targetFile" -foregroundcolor cyan
     $uri = New-Object "System.Uri" "$url"
@@ -124,6 +130,7 @@ function get-GithubRelease {
         [Parameter(HelpMessage = 'no GUI')]
         [switch]$NoGui
     )
+    write-host "get-GithubRelease Time: $(Get-Date)" -ForegroundColor Yellow
     $Releases = @()
     $DownloadList = @()
         
@@ -152,20 +159,16 @@ function get-GithubRelease {
     $DownloadSelection = @{}
     $DownloadList | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
     
-    $DownloadList 
-    | Where-Object -Property File -eq $DownloadSelection
-    | Select-Object -Property File, URL | ForEach-Object {
+    $DownloadList | Where-Object -Property File -eq $DownloadSelection | Select-Object -Property File, URL | ForEach-Object {
+        write-host "BlaBla" -ForegroundColor Red
         write-host "Downloading $($_.File) from $($_.URL)" -ForegroundColor Yellow
 #        DownloadFn -url $($_.URL) -targetFile $Destination\$($_.File)
-        DownloadLegacy -url $($_.URL) -targetFile $Destination\$($_.File)
-        $Global:RustdeskUpdateExe = "$($Destination)\$($_.File)"
+        irm -Uri $($_.URL) -OutFile .\$Destination\$($_.File)
     }
-
 }
 
 write-host "Starting RustDesk download" -ForegroundColor Yellow
-$targetdir=(Get-Location)
-get-GithubRelease @DownloadControl -Destination $targetdir
-write-host "Starting RustDesk Menu" -ForegroundColor Yellow
-write-host "Rustdesk Upgrader: $Global:RustdeskUpdateExe" -ForegroundColor Yellow
-RustdeskMenu -RustdeskUpdateExe RustdeskUpdateExe -InstallOrUpgrade -Configure
+get-GithubRelease @DownloadControl -Destination $targetdir -OutVariable RustdeskUpdateExe
+write-host "RustDeskUpdateExe: $RustdeskUpdateExe" -ForegroundColor Cyan
+#write-host "Rustdesk Upgrader: $Global:RustdeskUpdateExe" -ForegroundColor Yellow
+#RustdeskMenu -RustdeskUpdateExe RustdeskUpdateExe -InstallOrUpgrade -Configure
