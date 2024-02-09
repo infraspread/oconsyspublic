@@ -4,7 +4,7 @@ $DownloadControl = @{
     Tag     = 'nightly'
 }
 $StandardFilter = 'x86_64.exe'
-$global:RustdeskConfig=@'
+$global:RustdeskConfig = @'
 rendezvous_server = 'rustdesk.infraspread.net:21116'
 nat_type = 1
 serial = 0
@@ -19,7 +19,7 @@ key = 'U6UP6RRmolDUo72ysJ11B5UGKKku9wox5ZwLFSpFw0g='
 allow-remove-wallpaper = 'Y'
 stop-service = 'N'
 '@
-$global:RustdeskDefault=@'
+$global:RustdeskDefault = @'
 [options]
 disable_audio = 'Y'
 show_remote_cursor = 'Y'
@@ -29,32 +29,25 @@ image_quality = 'low'
 enable_file_transfer = 'Y'
 '@
 
-Function Check-RunAsAdministrator()
-{
-  #Get current user context
-  $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+Function Check-RunAsAdministrator() {
+    #Get current user context
+    $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
   
-  #Check user is running the script is member of Administrator Group
-  if($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))
-  {
-       Write-host "Script is running with Administrator privileges!"
-  }
-  else
-    {
-       #Create a new Elevated process to Start PowerShell
-       $ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo "PowerShell";
- 
-       # Specify the current script path and name as a parameter
-       $ElevatedProcess.Arguments = "& '" + $script:MyInvocation.MyCommand.Path + "'"
- 
-       #Set the Process to elevated
-       $ElevatedProcess.Verb = "runas"
- 
-       #Start the new elevated process
-       [System.Diagnostics.Process]::Start($ElevatedProcess)
- 
-       #Exit from the current, unelevated, process
-       Exit
+    #Check user is running the script is member of Administrator Group
+    if ($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+        Write-host "Script is running with Administrator privileges!"
+    }
+    else {
+        #Create a new Elevated process to Start PowerShell
+        $ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo "PowerShell";
+        # Specify the current script path and name as a parameter
+        $ElevatedProcess.Arguments = "& '" + $script:MyInvocation.MyCommand.Path + "'"
+        #Set the Process to elevated
+        $ElevatedProcess.Verb = "runas"
+        #Start the new elevated process
+        [System.Diagnostics.Process]::Start($ElevatedProcess)
+        #Exit from the current, unelevated, process
+        Exit
  
     }
 }
@@ -225,6 +218,7 @@ function get-GithubRelease {
         #        irm -Uri $($_.URL) -OutFile .\$Destination\$($_.File)
     }
 }
+
 #Check Script is running with Elevated Privileges
 Check-RunAsAdministrator
 get-GithubRelease @DownloadControl -Destination $targetdir
