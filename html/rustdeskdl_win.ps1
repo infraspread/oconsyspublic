@@ -47,7 +47,7 @@ Function Check-RunAsAdministrator() {
         #Start the new elevated process
         [System.Diagnostics.Process]::Start($ElevatedProcess)
         #Exit from the current, unelevated, process
-        Exit
+        #Exit
  
     }
 }
