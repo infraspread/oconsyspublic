@@ -82,7 +82,7 @@ function get-GithubRelease {
     }
      
     $DownloadSelection = @{}
-    $DownloadList.File | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
+    $DownloadList | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
     
     $DownloadList 
     | Where-Object -Property File -eq $DownloadSelection
