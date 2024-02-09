@@ -74,6 +74,14 @@ function get-DownloadSize {
     return $DownloadSizeMB
 }
 
+function DownloadLegacy {
+    param (
+        $url,
+        $targetFile
+    )
+    Invoke-WebRequest -Uri  $url -OutFile $targetFile
+}
+
 function DownloadFn($url, $targetFile) {
     write-host "Downloading: $url" -foregroundcolor yellow
     write-host "To: $targetFile" -foregroundcolor cyan
@@ -146,15 +154,17 @@ function get-GithubRelease {
     $DownloadList 
     | Where-Object -Property File -eq $DownloadSelection
     | Select-Object -Property File, URL | ForEach-Object {
-        DownloadFn -url $($_.URL) -targetFile $Destination\$($_.File)
+        write-host "Downloading $($_.File) from $($_.URL)" -ForegroundColor Yellow
+#        DownloadFn -url $($_.URL) -targetFile $Destination\$($_.File)
+        DownloadLegacy -url $($_.URL) -targetFile $Destination\$($_.File)
         $Global:RustdeskUpdateExe = "$($Destination)\$($_.File)"
     }
 
 }
 
 write-host "Starting RustDesk download" -ForegroundColor Yellow
-get-GithubRelease @DownloadControl -Destination $PWD
-Get-Location
+$targetdir=(Get-Location)
+get-GithubRelease @DownloadControl -Destination $targetdir
 write-host "Starting RustDesk Menu" -ForegroundColor Yellow
 write-host "Rustdesk Upgrader: $Global:RustdeskUpdateExe" -ForegroundColor Yellow
 RustdeskMenu -RustdeskUpdateExe RustdeskUpdateExe -InstallOrUpgrade -Configure
