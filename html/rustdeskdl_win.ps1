@@ -56,7 +56,7 @@ Function test-RunAsAdministrator() {
         Exit
     }
 #>
-    write-host "My Command Path: $PSCommandPath"
+    write-host "My Command 666Path: $PSCommandPath"
     $ScriptPath = $($PSCommandPath)
     pause
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
