@@ -79,6 +79,7 @@ function DownloadLegacy {
         $url,
         $targetFile
     )
+    write-host "Legacy Downloading: $url to $targetFile" -foregroundcolor Green
     Invoke-WebRequest -Uri  $url -OutFile $targetFile
 }
 
