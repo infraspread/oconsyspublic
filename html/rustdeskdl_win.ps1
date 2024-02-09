@@ -168,7 +168,7 @@ function get-GithubRelease {
 }
 
 write-host "Starting RustDesk download" -ForegroundColor Yellow
-get-GithubRelease @DownloadControl -Destination $targetdir -OutVariable RustdeskUpdateExe
+get-GithubRelease @DownloadControl -Destination $targetdir
 write-host "RustDeskUpdateExe: $RustdeskUpdateExe" -ForegroundColor Cyan
 #write-host "Rustdesk Upgrader: $Global:RustdeskUpdateExe" -ForegroundColor Yellow
 #RustdeskMenu -RustdeskUpdateExe RustdeskUpdateExe -InstallOrUpgrade -Configure
