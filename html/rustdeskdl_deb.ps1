@@ -66,7 +66,7 @@ function get-GithubRelease {
         $URL = "https://api.github.com/repos/$Owner/$Project/releases/tags/$Tag"
     }
     
-    $Releases = (Invoke-RestMethod $URL).assets.browser_download_url | Where-Object {$_ -like "*$StandardFilter"} 
+    $Releases = (Invoke-RestMethod $URL).assets.browser_download_url | Where-Object {$_ -like "*$($StandardFilter)"} 
     $i = 0
         
     $Releases | ForEach-Object {
