@@ -60,7 +60,7 @@ Function test-RunAsAdministrator() {
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         # Relaunch as an elevated process:
         Start-Process pwsh.exe "-File", ('"{0}"' -f $PSCommandPath) -Verb RunAs
-        exit
+        #exit
     }
 }
     
