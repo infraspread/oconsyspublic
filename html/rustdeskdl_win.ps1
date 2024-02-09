@@ -91,7 +91,6 @@ function RustdeskMenu {
         [string]$RustdeskPath = "C:\Program Files\RustDesk",
         [string]$RustdeskUpdateExe
     )
-    write-host "RustdeskMenu Time: $(Get-Date)" -ForegroundColor Yellow
 
     $RustdeskMenu = @{
         'AiO'        = 'Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server'
@@ -100,19 +99,26 @@ function RustdeskMenu {
         'Chocolatey' = 'Install Chocolatey'
     }
     $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
-    Write-Host "RustdeskAction: $($RustdeskAction.Key)" -ForegroundColor Yellow
+    Write-Verbose "RustdeskAction: $($RustdeskAction.Key)"
     switch ($($RustdeskAction.Key)) {
         "AiO" {
-            write-host "Installing RustDesk and configuring with Infraspread Rendezvous server" -ForegroundColor Yellow
+            Write-Verbose "Installing RustDesk and configuring with Infraspread Rendezvous server"
             Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
             Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
             $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
             $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
             $global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
             RustdeskWaitService
+            Set-Location $env:ProgramFiles\RustDesk
+            .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
+            $rustdeskResult = "Successfully Installed Rustdesk, your ID is $RustdeskID"
+            write-host $rustdeskResult -ForegroundColor Green
+            # import Windows Forms assembly
+            Add-Type -AssemblyName System.Windows.Forms
+            [System.Windows.Forms.MessageBox]::Show($rustdeskResult,"Rustdesk Installation",0)
         }
         "Upgrade" {
-            write-host "Upgrading RustDesk" -ForegroundColor Yellow
+            Write-Verbose "Upgrading RustDesk"
             Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
             Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
@@ -125,13 +131,11 @@ function RustdeskMenu {
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
         }
         "Chocolatey" {
-            write-host "Install Chocolatey" -ForegroundColor Yellow
+            Write-Verbose "Install Chocolatey"
             Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
         }
     }
-    Set-Location $env:ProgramFiles\RustDesk
-    .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
-    write-host "Successfully Installed Rustdesk, your ID is $RustdeskID" -ForegroundColor Green
+
 }
 
 function DownloadLegacy {
@@ -139,8 +143,7 @@ function DownloadLegacy {
         [string]$url,
         [string]$targetFile
     )
-    write-host "DownloadLegacy Time: $(Get-Date)" -ForegroundColor Yellow
-    write-host "Legacy Downloading: $url to $targetFile" -foregroundcolor Green
+    Write-Verbose "Legacy Downloading: $url to $targetFile"
     Invoke-WebRequest -Uri  $url -OutFile $targetFile
     return $targetFile
 }
@@ -151,7 +154,7 @@ function get-DownloadSize {
     )
     $DownloadSizeByte = [int]::Parse(((Invoke-WebRequest $URL -Method Head).Headers.'Content-Length'))
     $DownloadSizeMB = [math]::Round($DownloadSizeByte / 1MB, 2)
-    write-host "URL: $URL Size: $DownloadSizeMB MB" -foregroundcolor yellow
+    Write-Verbose "URL: $URL Size: $DownloadSizeMB MB"
     return $DownloadSizeMB
 }
     
@@ -198,7 +201,7 @@ function get-GithubRelease {
         [switch]$NoGui
     )
     Set-Location ~
-    write-host "get-GithubRelease Time: $(Get-Date)" -ForegroundColor Yellow
+    Write-Verbose "get-GithubRelease Time: $(Get-Date)"
     $Releases = @()
     $DownloadList = @()
         
@@ -208,9 +211,8 @@ function get-GithubRelease {
     else {
         $URL = "https://api.github.com/repos/$Owner/$Project/releases/tags/$Tag"
     }
-    $GITHUB_TOKEN = "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"
-    $base64AuthInfo = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($GITHUB_TOKEN)"))
-    
+    #$GITHUB_TOKEN = "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"
+    #$base64AuthInfo = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($GITHUB_TOKEN)"))
     #$Releases = (Invoke-RestMethod -Uri $URL -Headers @{authorization = "Basic $base64AuthInfo" }).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" } 
     $Releases = (Invoke-RestMethod -Uri $URL).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" }
     $i = 0
@@ -228,11 +230,15 @@ function get-GithubRelease {
         ) 
     }
      
-    $DownloadSelection = @{}
-    $DownloadList | Out-GridView -Title "Select the file to download" -OutputMode Single -OutVariable DownloadSelection
+    
+    $DownloadList | Out-GridView -Title "Select file to download" -OutputMode Single -OutVariable DownloadSelection
+    if ($null -eq $DownloadSelection) {
+        Write-Host "No file selected, exiting" -ForegroundColor Red
+        exit
+    }
     $DownloadList | Where-Object -Property File -eq $($DownloadSelection.File) | Select-Object -Property File, URL, Destination | ForEach-Object {
         #write-host "Downloading $($_.File) from $($_.URL) to .\$Destination\$($_.File)" -ForegroundColor Yellow
-        write-host "Downloading $($_.File) from $($_.URL) to $($_.Destination)" -ForegroundColor Yellow
+        Write-Verbose "Downloading $($_.File) from $($_.URL) to $($_.Destination)"
         DownloadLegacy -url $($_.URL) -targetFile $($_.Destination)
         $global:RustdeskUpdateExe = $($_.Destination)
         #        irm -Uri $($_.URL) -OutFile .\$Destination\$($_.File)
