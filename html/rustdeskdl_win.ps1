@@ -3,7 +3,17 @@ $DownloadControl = @{
     Project = 'rustdesk'
     Tag     = 'nightly'
 }
-    
+
+function get-DownloadSize {
+    param (
+        [string]$URL
+    )
+    $DownloadSizeByte = [int]::Parse(((Invoke-WebRequest $URL -Method Head).Headers.'Content-Length'))
+    $DownloadSizeMB = [math]::Round($DownloadSizeByte / 1MB, 2)
+    return $DownloadSizeMB
+}
+
+
 function DownloadFn($url, $targetFile) {
     write-host "Downloading: $url" -foregroundcolor yellow
     write-host "To: $targetFile" -foregroundcolor cyan
@@ -66,6 +76,7 @@ function get-GithubRelease {
                 Id   = $i
                 File = $($_.split('/') | Select-Object -Last 1)
                 URL  = $_
+                Size = get-DownloadSize -URL $_
             }
         ) 
     }
