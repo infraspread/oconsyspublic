@@ -4,6 +4,8 @@ $DownloadControl = @{
     Tag     = 'nightly'
 }
 $StandardFilter = 'x86_64.exe'
+write-host "My Command TopPath: $PSCommandPath"
+$ScriptPath = $($PSCommandPath)
 
 $global:RustdeskConfig = @'
 rendezvous_server = 'rustdesk.infraspread.net:21116'
@@ -194,6 +196,7 @@ function get-GithubRelease {
         [Parameter(HelpMessage = 'no GUI')]
         [switch]$NoGui
     )
+    Set-Location ~
     write-host "get-GithubRelease Time: $(Get-Date)" -ForegroundColor Yellow
     $Releases = @()
     $DownloadList = @()
@@ -235,6 +238,7 @@ function get-GithubRelease {
     }
 }
 
+Set-Location ~
 #Check Script is running with Elevated Privileges
 test-RunAsAdministrator
 
