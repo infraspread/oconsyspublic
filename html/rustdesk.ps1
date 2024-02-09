@@ -27,14 +27,7 @@ function ModulePrerequisites {
     # endregion
 
     # region ModulesListStart
-    <# 
-    generate object of module(s) to install
-    [string]name
-    [bool]installed
-    [bool]installable
-    [string]Repository
-    #>
-    $Modules | ForEach-Object {
+      $Modules | ForEach-Object {
         $ModulesListStart += @(
             [PSCustomObject]@{
                 Name        = $_
@@ -49,7 +42,7 @@ function ModulePrerequisites {
     # region Install Parameters
     $params = @{}
     if ($allusers) {
-        # check if current user is in 'S-1-5-32-544', if not, give notice do a current user install instead
+        # check if current user is in SID of Administrators, 'S-1-5-32-544', if not, give notice do a current user install instead
         if (([System.Security.Principal.WindowsIdentity]::GetCurrent()).Groups -contains 'S-1-5-32-544') {
             $params.Scope = 'AllUsers'
             if ($force) {
