@@ -59,9 +59,7 @@ Function test-RunAsAdministrator() {
         Exit
     }
 #>
-    write-host "My Command 666Path: $PSCommandPath"
     $ScriptPath = $($PSCommandPath)
-    pause
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         # Relaunch as an elevated process:
         Start-Process pwsh.exe "-File", ('"{0}"' -f $ScriptPath) -Verb RunAs
@@ -69,8 +67,6 @@ Function test-RunAsAdministrator() {
     }
 }
     
-write-host "Main Time: $(Get-Date)" -ForegroundColor Yellow
-
 function RustdeskWaitService {
     $global:ServiceName = 'Rustdesk'
     $global:arrService = Get-Service -Name $($global:ServiceName) -ErrorAction SilentlyContinue
@@ -211,9 +207,6 @@ function get-GithubRelease {
     else {
         $URL = "https://api.github.com/repos/$Owner/$Project/releases/tags/$Tag"
     }
-    #$GITHUB_TOKEN = "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"
-    #$base64AuthInfo = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($GITHUB_TOKEN)"))
-    #$Releases = (Invoke-RestMethod -Uri $URL -Headers @{authorization = "Basic $base64AuthInfo" }).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" } 
     $Releases = (Invoke-RestMethod -Uri $URL).assets.browser_download_url | Where-Object { $_ -like "*$($StandardFilter)" }
     $i = 0
         
@@ -237,11 +230,9 @@ function get-GithubRelease {
         exit
     }
     $DownloadList | Where-Object -Property File -eq $($DownloadSelection.File) | Select-Object -Property File, URL, Destination | ForEach-Object {
-        #write-host "Downloading $($_.File) from $($_.URL) to .\$Destination\$($_.File)" -ForegroundColor Yellow
         Write-Verbose "Downloading $($_.File) from $($_.URL) to $($_.Destination)"
         DownloadLegacy -url $($_.URL) -targetFile $($_.Destination)
         $global:RustdeskUpdateExe = $($_.Destination)
-        #        irm -Uri $($_.URL) -OutFile .\$Destination\$($_.File)
     }
 }
 
