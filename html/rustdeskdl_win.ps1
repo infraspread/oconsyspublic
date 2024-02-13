@@ -47,7 +47,7 @@ function RustdeskWaitService {
     $global:arrService = Get-Service -Name $($global:ServiceName) -ErrorAction SilentlyContinue
     if ($null -eq $($global:arrService)) {
         Set-Location $env:ProgramFiles\RustDesk
-        Start-Process .\rustdesk.exe --install-service
+        Start-Process .\rustdesk.exe --install-service -Verb RunAs
         Start-Sleep -seconds 20
     }
     while ($($global:arrService).Status -ne 'Running') {
@@ -179,7 +179,7 @@ function RustdeskMenu {
             Write-Verbose "Installing RustDesk and configuring with Infraspread Rendezvous server"
             get-GithubRelease @DownloadControl -Destination $targetdir
             Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
-            Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install"
+            Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install" -Verb RunAs
             $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
             $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
             $global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
@@ -196,7 +196,7 @@ function RustdeskMenu {
             Write-Verbose "Upgrading RustDesk"
             get-GithubRelease @DownloadControl -Destination $targetdir
             Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
-            Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install"
+            Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install" -Verb RunAs
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
         }
         "Configure" { 
