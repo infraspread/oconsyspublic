@@ -179,7 +179,7 @@ function RustdeskMenu {
             Write-Verbose "Installing RustDesk and configuring with Infraspread Rendezvous server"
             get-GithubRelease @DownloadControl -Destination $targetdir
             Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
-            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
+            Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install"
             $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
             $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
             $global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
@@ -196,7 +196,7 @@ function RustdeskMenu {
             Write-Verbose "Upgrading RustDesk"
             get-GithubRelease @DownloadControl -Destination $targetdir
             Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
-            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
+            Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install"
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
         }
         "Configure" { 
