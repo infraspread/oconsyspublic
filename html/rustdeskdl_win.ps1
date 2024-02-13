@@ -163,8 +163,7 @@ function get-GithubRelease {
 
 function RustdeskMenu {
     param (
-        [string]$RustdeskPath = "C:\Program Files\RustDesk",
-        [string]$RustdeskUpdateExe
+        [string]$RustdeskPath = "C:\Program Files\RustDesk"
     )
 
     $RustdeskMenu = @{
@@ -221,4 +220,4 @@ Set-Location ~
 # test-RunAsAdministrator
 
 #get-GithubRelease @DownloadControl -Destination $targetdir
-RustdeskMenu -RustdeskUpdateExe $RustdeskUpdateExe -InstallOrUpgrade -Configure
+RustdeskMenu
