@@ -5,7 +5,6 @@ $DownloadControl = @{
 }
 
 $StandardFilter = 'x86_64.exe'
-write-host "My Command TopPath: $PSCommandPath"
 $ScriptPath = $($PSCommandPath)
 
 $global:RustdeskConfig = @'
@@ -35,30 +34,6 @@ enable_file_transfer = 'Y'
 '@
 
 Function test-RunAsAdministrator() {
-    <#
-    #Get current user context
-    $CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
-  
-    #Check user is running the script is member of Administrator Group
-    if ($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
-        Write-host "Script is running with Administrator privileges!"
-    }
-    else {
-        #Create a new Elevated process to Start PowerShell
-        $ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo "pwsh";
-        # Specify the current script path and name as a parameter
-        #write-host "& '" + $script:MyInvocation.MyCommand.Path + "'"
-        write-host "& '" + $PSCommandPath + "'"
-        
-        $ElevatedProcess.Arguments = "& '" + $PSScriptRoot + "'"
-        #Set the Process to elevated
-        $ElevatedProcess.Verb = "runas"
-        #Start the new elevated process
-        [System.Diagnostics.Process]::Start($ElevatedProcess)
-        #Exit from the current, unelevated, process
-        Exit
-    }
-#>
     $ScriptPath = $($PSCommandPath)
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         # Relaunch as an elevated process:
@@ -82,57 +57,7 @@ function RustdeskWaitService {
     }
 }
 
-function RustdeskMenu {
-    param (
-        [string]$RustdeskPath = "C:\Program Files\RustDesk",
-        [string]$RustdeskUpdateExe
-    )
 
-    $RustdeskMenu = @{
-        'AiO'        = 'Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server'
-        'Upgrade'    = 'just upgrade or install RustDesk, leave configuration as is'
-        'Configure'  = 'just configure RustDesk to use free Infraspread Rustdesk server'
-        'Chocolatey' = 'Install Chocolatey'
-    }
-    $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
-    Write-Verbose "RustdeskAction: $($RustdeskAction.Key)"
-    switch ($($RustdeskAction.Key)) {
-        "AiO" {
-            Write-Verbose "Installing RustDesk and configuring with Infraspread Rendezvous server"
-            Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
-            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
-            $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
-            $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
-            $global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
-            RustdeskWaitService
-            Set-Location $env:ProgramFiles\RustDesk
-            .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
-            $rustdeskResult = "Successfully Installed Rustdesk, your ID is $RustdeskID"
-            write-host $rustdeskResult -ForegroundColor Green
-            # import Windows Forms assembly
-            Add-Type -AssemblyName System.Windows.Forms
-            [System.Windows.Forms.MessageBox]::Show($rustdeskResult,"Rustdesk Installation",0)
-        }
-        "Upgrade" {
-            Write-Verbose "Upgrading RustDesk"
-            Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
-            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
-            Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
-        }
-        "Configure" { 
-            Get-Service -Name RustDesk | Stop-Service -Force -ErrorAction SilentlyContinue
-            $RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
-            $RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
-            $RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
-            Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
-        }
-        "Chocolatey" {
-            Write-Verbose "Install Chocolatey"
-            Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-        }
-    }
-
-}
 
 function DownloadLegacy {
     param (
@@ -236,9 +161,64 @@ function get-GithubRelease {
     }
 }
 
+function RustdeskMenu {
+    param (
+        [string]$RustdeskPath = "C:\Program Files\RustDesk",
+        [string]$RustdeskUpdateExe
+    )
+
+    $RustdeskMenu = @{
+        'AiO'        = 'Install or Upgrade RustDesk and Configure with Infraspread Rendezvous server'
+        'Upgrade'    = 'upgrade or install RustDesk, leave configuration as is'
+        'Configure'  = 'only configure installed RustDesk to use free Infraspread Rustdesk server'
+        'Chocolatey' = 'Install Chocolatey'
+    }
+    $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
+    Write-Verbose "RustdeskAction: $($RustdeskAction.Key)"
+    switch ($($RustdeskAction.Key)) {
+        "AiO" {
+            Write-Verbose "Installing RustDesk and configuring with Infraspread Rendezvous server"
+            get-GithubRelease @DownloadControl -Destination $targetdir
+            Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
+            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
+            $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
+            $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
+            $global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
+            RustdeskWaitService
+            Set-Location $env:ProgramFiles\RustDesk
+            .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
+            $rustdeskResult = "Successfully Installed Rustdesk, your ID is $RustdeskID"
+            write-host $rustdeskResult -ForegroundColor Green
+            # import Windows Forms assembly
+            Add-Type -AssemblyName System.Windows.Forms
+            [System.Windows.Forms.MessageBox]::Show($rustdeskResult,"Rustdesk Installation",0)
+        }
+        "Upgrade" {
+            Write-Verbose "Upgrading RustDesk"
+            get-GithubRelease @DownloadControl -Destination $targetdir
+            Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
+            Start-Process -FilePath $RustdeskUpdateExe -ArgumentList "--silent-install"
+            Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
+        }
+        "Configure" { 
+            Get-Service -Name RustDesk | Stop-Service -Force -ErrorAction SilentlyContinue
+            $RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
+            $RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
+            $RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
+            Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
+        }
+        "Chocolatey" {
+            Write-Verbose "Install Chocolatey"
+            Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        }
+    }
+
+}
+
+
 Set-Location ~
 #Check Script is running with Elevated Privileges
-test-RunAsAdministrator
+# test-RunAsAdministrator
 
-get-GithubRelease @DownloadControl -Destination $targetdir
+#get-GithubRelease @DownloadControl -Destination $targetdir
 RustdeskMenu -RustdeskUpdateExe $RustdeskUpdateExe -InstallOrUpgrade -Configure
