@@ -5,6 +5,7 @@ Import-Module TextTable
 
 $selections = @()
 $tableData = @(
+    [PSCustomObject]@{Name = 'oconsys Rustdesk'; Action = 'irm https://rust.oconsys.net | iex' },
     [PSCustomObject]@{Name = 'Input Action'; Action = 'read-host "Enter a value" -OutVariable global:input' },
     [PSCustomObject]@{Name = 'Test Action'; Action = 'write-host "Test Action $global:input" -ForegroundColor Green' },
     [PSCustomObject]@{Name = 'Enter the Massgrave'; Action = 'irm https://massgrave.dev/get | iex' },
