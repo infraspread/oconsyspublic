@@ -1,4 +1,5 @@
 # region TableUI
+
 # The overall width of the UI.
 [int]$UIWidth = 80
 [int]$UIWidthMin = 54
@@ -992,17 +993,21 @@ function Show-TableUI
 }
 # endregion
 
-
-
 $selections = @()
 $tableData = @(
     [PSCustomObject]@{Name = 'oconsys Rustdesk'; Action = 'irm https://rust.oconsys.net | iex' },
     [PSCustomObject]@{Name = 'Disable CPU Mitigations'; Action = 'importCPURegistry' },
+    [PSCustomObject]@{Name = 'Get WLAN Passwords'; Action = 'get-WlanPassword' },
     [PSCustomObject]@{Name = 'Input Action'; Action = 'read-host "Enter a value" -OutVariable global:input' },
     [PSCustomObject]@{Name = 'Test Action'; Action = 'write-host "Test Action $global:input" -ForegroundColor Green' },
     [PSCustomObject]@{Name = 'Enter the Massgrave'; Action = 'irm https://massgrave.dev/get | iex' },
     [PSCustomObject]@{Name = 'Quit'; Action = 'exit' }
 )
+
+function get-WlanPassword {
+    (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)} | Select-String "Schlüsselinhalt\W+\:(.+)$|Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); if (-not $pass) {$pass=$_.Matches.Groups[2].Value.Trim()}; $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }}
+}
+
 function importCPURegistry{
     $regdata=
 @'
