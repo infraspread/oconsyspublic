@@ -1,4 +1,4 @@
-# region TableUI
+﻿# region TableUI
 
 # The overall width of the UI.
 [int]$UIWidth = 80
@@ -26,8 +26,7 @@ $DummyScriptBlock = {
 .DESCRIPTION
     Clears the frame buffer.
 #>
-function Clear-Frame
-{
+function Clear-Frame {
     $script:FrameBuffer = @('')
 }
 
@@ -35,8 +34,7 @@ function Clear-Frame
 .DESCRIPTION
     Writes the frame buffer to output.
 #>
-function Show-Frame
-{
+function Show-Frame {
     $host.UI.RawUI.CursorPosition = @{ X = 0; Y = 0 }
     $script:FrameBuffer | ForEach-Object {
         Write-Output $_
@@ -56,8 +54,7 @@ function Show-Frame
 .DESCRIPTION
     Writes a top-bar to the frame buffer.
 #>
-function Write-FrameTopBar
-{
+function Write-FrameTopBar {
     param (
         # The width of the overall UI. The content will take up $Width - 4.
         [int]$Width = $UIWidth,
@@ -68,7 +65,8 @@ function Write-FrameTopBar
 
     if ($Truncated) {
         $script:FrameBuffer += "┌$('─' * ($Width - 2))╖"
-    } else {
+    }
+    else {
         $script:FrameBuffer += "┌$('─' * ($Width - 2))┐"
     }
 }
@@ -77,8 +75,7 @@ function Write-FrameTopBar
 .DESCRIPTION
     Writes a middle-bar to the frame buffer.
 #>
-function Write-FrameMiddleBar
-{
+function Write-FrameMiddleBar {
     param (
         # The width of the overall UI. The content will take up $Width - 4.
         [int]$Width = $UIWidth,
@@ -89,7 +86,8 @@ function Write-FrameMiddleBar
 
     if ($Truncated) {
         $script:FrameBuffer += "├$('─' * ($Width - 2))╢"
-    } else {
+    }
+    else {
         $script:FrameBuffer += "├$('─' * ($Width - 2))┤"
     }
 }
@@ -98,8 +96,7 @@ function Write-FrameMiddleBar
 .DESCRIPTION
     Writes a bottom-bar to the frame buffer.
 #>
-function Write-FrameBottomBar
-{
+function Write-FrameBottomBar {
     param (
         # The width of the overall UI. The content will take up $Width - 4.
         [int]$Width = $UIWidth,
@@ -110,7 +107,8 @@ function Write-FrameBottomBar
 
     if ($Truncated) {
         $script:FrameBuffer += "└$('─' * ($Width - 2))╜"
-    } else {
+    }
+    else {
         $script:FrameBuffer += "└$('─' * ($Width - 2))┘"
     }
 }
@@ -119,8 +117,7 @@ function Write-FrameBottomBar
 .DESCRIPTION
     Writes the top-bar used for column separation to the frame buffer.
 #>
-function Write-FrameColumnTopBar
-{
+function Write-FrameColumnTopBar {
     param (
         # The width of each column's content
         [int[]]$ColumnWidth,
@@ -129,14 +126,15 @@ function Write-FrameColumnTopBar
         [switch]$Truncated
     )
 
-    $line = '├'  + ('─' * ($ColumnWidth[0] + 6))
-    $ColumnWidth | Select-Object -Skip 1| ForEach-Object {
-        $line += '┬'  + ('─' * ($_ + 2))
+    $line = '├' + ('─' * ($ColumnWidth[0] + 6))
+    $ColumnWidth | Select-Object -Skip 1 | ForEach-Object {
+        $line += '┬' + ('─' * ($_ + 2))
     }
 
     if ($Truncated) {
         $line += '╢'
-    } else {
+    }
+    else {
         $line += '┤'
     }
 
@@ -147,8 +145,7 @@ function Write-FrameColumnTopBar
 .DESCRIPTION
     Writes the middle-bar used for column separation to the frame buffer.
 #>
-function Write-FrameColumnMiddleBar
-{
+function Write-FrameColumnMiddleBar {
     param (
         # The width of each column's content
         [int[]]$ColumnWidth,
@@ -157,14 +154,15 @@ function Write-FrameColumnMiddleBar
         [switch]$Truncated
     )
 
-    $line = '├'  + ('─' * ($ColumnWidth[0] + 6))
-    $ColumnWidth | Select-Object -Skip 1| ForEach-Object {
-        $line += '┼'  + ('─' * ($_ + 2))
+    $line = '├' + ('─' * ($ColumnWidth[0] + 6))
+    $ColumnWidth | Select-Object -Skip 1 | ForEach-Object {
+        $line += '┼' + ('─' * ($_ + 2))
     }
 
     if ($Truncated) {
         $line += '╢'
-    } else {
+    }
+    else {
         $line += '┤'
     }
 
@@ -175,8 +173,7 @@ function Write-FrameColumnMiddleBar
 .DESCRIPTION
     Writes the bottom-bar used for column separation to the frame buffer.
 #>
-function Write-FrameColumnBottomBar
-{
+function Write-FrameColumnBottomBar {
     param (
         # The width of each column's content
         [int[]]$ColumnWidth,
@@ -185,14 +182,15 @@ function Write-FrameColumnBottomBar
         [switch]$Truncated
     )
 
-    $line = '├'  + ('─' * ($ColumnWidth[0] + 6))
-    $ColumnWidth | Select-Object -Skip 1| ForEach-Object {
-        $line += '┴'  + ('─' * ($_ + 2))
+    $line = '├' + ('─' * ($ColumnWidth[0] + 6))
+    $ColumnWidth | Select-Object -Skip 1 | ForEach-Object {
+        $line += '┴' + ('─' * ($_ + 2))
     }
 
     if ($Truncated) {
         $line += '╢'
-    } else {
+    }
+    else {
         $line += '┤'
     }
 
@@ -203,8 +201,7 @@ function Write-FrameColumnBottomBar
 .DESCRIPTION
     Writes content to the frame buffer.
 #>
-function Write-FrameContent
-{
+function Write-FrameContent {
     param (
         # The width of the overall UI. The content will take up $Width - 4.
         [int]$Width = $UIWidth,
@@ -224,20 +221,23 @@ function Write-FrameContent
     if ($Content.Length -gt ($Width - 4)) {
         # Truncate to fit width (account for additional ellipsis)
         $Content = "$($Content.Substring(0, $Width - 4 - 1))…"
-    } else {
+    }
+    else {
         # Pad the tail to fit $Width
         $Content = $Content + (' ' * (($Width - 4) - $Content.Length))
     }
 
     if ($Truncated) {
         $endBar = '║'
-    } else {
+    }
+    else {
         $endBar = '│'
     }
 
     if ([string]::IsNullOrWhiteSpace($AnsiiFormat)) {
         $script:FrameBuffer += "│ $Content $endBar"
-    } else {
+    }
+    else {
         $script:FrameBuffer += "│$AnsiiFormat $Content $($PSStyle.Reset)$endBar"
     }
 }
@@ -246,8 +246,7 @@ function Write-FrameContent
 .DESCRIPTION
     Write the frame data for the UI title bar.
 #>
-function Write-FrameTitle
-{
+function Write-FrameTitle {
     param (
         # The message to show. WIll be automatically truncated if it does
         # not fit within the contrains set by $UIWidth.
@@ -264,7 +263,8 @@ function Write-FrameTitle
     Write-FrameTopBar -Truncated:$Truncated
     if ([string]::IsNullOrWhiteSpace($AnsiiFormat)) {
         Write-FrameContent -Truncated:$Truncated -Content $Content
-    } else {
+    }
+    else {
         Write-FrameContent -Truncated:$Truncated -Content "$AnsiFormat$Content$($PSStyle.Reset)"
     }
 }
@@ -273,8 +273,7 @@ function Write-FrameTitle
 .DESCRIPTION
     Write the frame data for the UI column header(s).
 #>
-function Write-ColumnHeader
-{
+function Write-ColumnHeader {
     param (
         # The widths of each column
         [int[]]$ColumnWidth,
@@ -297,14 +296,14 @@ function Write-ColumnHeader
 
     $line = '│     ' + $MemberToShow[0] + (' ' * ($ColumnWidth[0] - $MemberToShow[0].Length + 1))
 
-    for ($i = 1; $i -lt $ColumnWidth.Count; $i++)
-    {
+    for ($i = 1; $i -lt $ColumnWidth.Count; $i++) {
         $line += '│ ' + $MemberToShow[$i] + (' ' * ($ColumnWidth[$i] - $MemberToShow[$i].Length + 1))
     }
 
     if ($Truncated) {
         $line += '║'
-    } else {
+    }
+    else {
         $line += '│'
     }
 
@@ -317,8 +316,7 @@ function Write-ColumnHeader
 .DESCRIPTION
     Write the frame data for the title of the selected item section.
 #>
-function Write-FrameSelectedItemTitle
-{
+function Write-FrameSelectedItemTitle {
     param (
         # The message to show. WIll be automatically truncated if it does
         # not fit within the contrains set by $Width.
@@ -342,8 +340,7 @@ function Write-FrameSelectedItemTitle
     Converts a selection item into the content that is to be shown on a single line in the UI's windowed selection.
     This function factors in the UI width to determine what items in the object to draw.
 #>
-function Get-SelectionItemLineContent
-{
+function Get-SelectionItemLineContent {
     param (
         # The object to render the line content for.
         [object]$SelectionItem,
@@ -364,22 +361,23 @@ function Get-SelectionItemLineContent
     if ($columnContent.Length -gt $colWidth) {
         # Truncate to fit width (account for additional ellipsis)
         $columnContent = "$($columnContent.Substring(0, $colWidth - 1))…"
-    } else {
+    }
+    else {
         # Pad the tail to fit $colWidth
         $columnContent = $columnContent + (' ' * ($colWidth - $columnContent.Length))
     }
 
     $lineContent = "$SelectionHeader $columnContent"
 
-    for ($i = 1; $i -lt $ColumnWidth.Count; $i++)
-    {
+    for ($i = 1; $i -lt $ColumnWidth.Count; $i++) {
         $columnContent = [string]($SelectionItem.($MemberToShow[$i]))
         $colWidth = $ColumnWidth[$i]
 
         if ($columnContent.Length -gt $colWidth) {
             # Truncate to fit width (account for additional ellipsis)
             $columnContent = "$($columnContent.Substring(0, $colWidth - 1))…"
-        } else {
+        }
+        else {
             # Pad the tail to fit $colWidth
             $columnContent = $columnContent + (' ' * ($colWidth - $columnContent.Length))
         }
@@ -394,8 +392,7 @@ function Get-SelectionItemLineContent
 .DESCRIPTION
     Write the frame data for the selectable items.
 #>
-function Write-FrameSelectionItems
-{
+function Write-FrameSelectionItems {
     param (
         # The title to display.
         [string]$Title,
@@ -436,17 +433,18 @@ function Write-FrameSelectionItems
         if ($Selections[$i]) { $selectedChar = '•' }
 
         $lineContentArgs = @{
-            SelectionItem = $SelectionItems[$i]
+            SelectionItem   = $SelectionItems[$i]
             SelectionHeader = "    "
-            MemberToShow = $MemberToShow
-            ColumnWidth = $widths
+            MemberToShow    = $MemberToShow
+            ColumnWidth     = $widths
         }
 
         if ($i -eq $SelectionIndex) {
             $lineContentArgs.SelectionHeader = "[$selectedChar]"
             $lineContent = Get-SelectionItemLineContent @lineContentArgs
             Write-FrameContent -Truncated:$Truncated -Content $lineContent -AnsiiFormat "$($PSStyle.Background.BrightBlue)$($PSStyle.Foreground.BrightWhite)"
-        } else {
+        }
+        else {
             $lineContentArgs.SelectionHeader = " $selectedChar "
             $lineContent = Get-SelectionItemLineContent @lineContentArgs
             Write-FrameContent -Truncated:$Truncated -Content $lineContent
@@ -460,10 +458,10 @@ function Write-FrameSelectionItems
             $emptyItem | Add-Member -MemberType NoteProperty -Name $_ -Value ''
         }
         $lineContentArgs = @{
-            SelectionItem = $emptyItem
+            SelectionItem   = $emptyItem
             SelectionHeader = "   "
-            MemberToShow = $MemberToShow
-            ColumnWidth = $widths
+            MemberToShow    = $MemberToShow
+            ColumnWidth     = $widths
         }
         $lineContent = Get-SelectionItemLineContent @lineContentArgs
         while ($padRows -gt 0) {
@@ -479,8 +477,7 @@ function Write-FrameSelectionItems
 .DESCRIPTION
     Write the frame data for the currently selected item.
 #>
-function Write-FrameSelectedItem
-{
+function Write-FrameSelectedItem {
     param (
         # An array of objects containing the selectable items.
         [object[]]$SelectionItems,
@@ -505,7 +502,8 @@ function Write-FrameSelectedItem
     $MembersToShow | ForEach-Object {
         if (-not([string]::IsNullOrWhiteSpace(($SelectionItems[$SelectionIndex].$_)))) {
             $content = "$ansiFormat$_$(' ' * ($maxMemberName - $_.Length)): $($PSStyle.Reset)$($SelectionItems[$SelectionIndex].$_ -join ', ')"
-        } else {
+        }
+        else {
             $content = "$ansiFormatAlt$_$(' ' * ($maxMemberName - $_.Length)): $($PSStyle.Reset)"
         }
 
@@ -537,7 +535,8 @@ function Get-WindowStartIndex {
     # Adjust the start index if it's near the start or end of the list.
     if ($windowStartIndex -lt 0) {
         $windowStartIndex = 0
-    } elseif ($windowStartIndex + $WindowSpan -gt $SelectionCount) {
+    }
+    elseif ($windowStartIndex + $WindowSpan -gt $SelectionCount) {
         $windowStartIndex = $SelectionCount - $WindowSpan
 
         if ($windowStartIndex -lt 0) {
@@ -556,8 +555,7 @@ function Get-WindowStartIndex {
     $True if the requested width failed, and should be rehandled in another
     call.
 #>
-function Set-BufferWidth
-{
+function Set-BufferWidth {
     param (
         # The width to set the buffer to (in characters).
         [int]$Width
@@ -574,20 +572,16 @@ function Set-BufferWidth
             # executes as the buffer width must always be at least the
             # window width.
             [Console]::BufferWidth = $Width
-        } catch [System.Management.Automation.SetValueInvocationException] {
+        }
+        catch [System.Management.Automation.SetValueInvocationException] {
             # Ignore the error and tell the caller to retry after determining
             # whether the buffer width is still valid for the current window
             # width.
             $redraw = $true
-        } finally {
+        }
+        finally {
             $ErrorActionPreference = $ErrorActionPreferenceBackup
         }
-
-    } else {
-        # While this is not equivalent to setting the buffer width,
-        # it still appears to help eliminate unwanted flickering
-        # when the width is smaller than the minimum width.
-        stty cols $Width
     }
 
     return $redraw
@@ -597,8 +591,7 @@ function Set-BufferWidth
 .DESCRIPTION
     Write the frame data for the user controls.
 #>
-function Write-FrameControls
-{
+function Write-FrameControls {
     param (
         # Decription should be filled to 60-characters.
         [string]$EnterKeyDescription,
@@ -612,7 +605,8 @@ function Write-FrameControls
 
     if ($Minimize) {
         Write-FrameContent -Truncated:$Truncated -AnsiiFormat "$($PSStyle.Background.BrightBlack)" -Content "Press '?' to show the controls menu."
-    } else {
+    }
+    else {
         Write-FrameContent -Truncated:$Truncated -AnsiiFormat "$($PSStyle.Background.BrightBlack)" -Content 'Press (PAGE) UP or (PAGE) DOWN to navigate selection.'
         Write-FrameContent -Truncated:$Truncated -AnsiiFormat "$($PSStyle.Background.BrightBlack)" -Content $EnterKeyDescription
         Write-FrameContent -Truncated:$Truncated -AnsiiFormat "$($PSStyle.Background.BrightBlack)" -Content 'Press SPACE to toggle selection.'
@@ -627,8 +621,7 @@ function Write-FrameControls
 .DESCRIPTION
     Gets the maximum length of each member to be shown in the windowed view.
 #>
-function Get-ItemMaxLength
-{
+function Get-ItemMaxLength {
     param (
         # The item(s) to compute the maximum length for the specified members.
         [object[]]$Item,
@@ -643,8 +636,7 @@ function Get-ItemMaxLength
     }
 
     # Ensure that the column headers (member names) will also fit in this space.
-    for ($i = 0; $i -lt $columnWidths.Count; $i++)
-    {
+    for ($i = 0; $i -lt $columnWidths.Count; $i++) {
         if ($columnWidths[$i] -lt $MemberName[$i].Length) {
             $columnWidths[$i] = $MemberName[$i].Length
         }
@@ -670,8 +662,7 @@ function Get-ItemMaxLength
     The number of elements in this output will always be at least one element
     and at most "@($MemberToShow).Length" elements.
 #>
-function Get-SelectionListColumnWidth
-{
+function Get-SelectionListColumnWidth {
     param (
         # One or more column widths to be used in the windowed list view.
         [int[]]$ColumnWidth,
@@ -696,7 +687,8 @@ function Get-SelectionListColumnWidth
         # Account for the 3 additional characters for spacing  (i.e. characters in this string not including CONTENT: " CONTENT |")
         if ($noSpaceRemainding -or (($_ + $numAlignChars) -gt $spaceAvailable)) {
             $noSpaceRemainding = $true
-        } else {
+        }
+        else {
             $outputColumnWidths += $_
             $spaceAvailable -= ($_ + $numAlignChars)
         }
@@ -714,8 +706,7 @@ function Get-SelectionListColumnWidth
     items in the array were selected. This format can be change to indicate
     the selected index or item values via the -SelectionFormat option.
 #>
-function Show-TableUI
-{
+function Show-TableUI {
     [CmdletBinding()]
     param (
         # The array of objects that will be presented in the table UI.
@@ -744,7 +735,7 @@ function Show-TableUI
         [Parameter()]
         [string]$EnterKeyDescription = 'Press ENTER to show selection details.',
 
-        # The script to execute whenn the ENNTER key is pressed. After completion, the screen will be redrawn by the TableUI.
+        # The script to execute whenn the ENTER key is pressed. After completion, the screen will be redrawn by the TableUI.
         [Parameter()]
         [scriptblock]$EnterKeyScript = $DummyScriptBlock,
 
@@ -766,18 +757,15 @@ function Show-TableUI
         [string]$ColumnHeaderVisiblity = 'Auto'
     )
 
-    begin
-    {
+    begin {
         $TableItems = @()
     }
 
-    process
-    {
+    process {
         $TableItems += $Table
     }
 
-    end
-    {
+    end {
         $Selections.Value = $null
         $EnterKeyDescription = $EnterKeyDescription.TrimEnd()
 
@@ -796,8 +784,8 @@ function Show-TableUI
 
         $key = New-Object ConsoleKeyInfo
         [char]$currentKey = [char]0
-        [char]$selectAll ='a'
-        [char]$selectNone ='n'
+        [char]$selectAll = 'a'
+        [char]$selectNone = 'n'
         [char]$continue = 'c'
         [char]$quitKey = 'q'
         [char]$helpKey = '?'
@@ -817,8 +805,7 @@ function Show-TableUI
         $redraw = $true
         $runLoop = $true
 
-        while ($runLoop)
-        {
+        while ($runLoop) {
             [int]$numStandardMenuLines = $staticRowCount + $SelectedItemMembersToShow.Count # Count is based on 'Frame' drawing calls below
             if ($helpMinimized) {
                 $numStandardMenuLines -= 6
@@ -833,7 +820,8 @@ function Show-TableUI
             if ($UIFit -eq 'Fill' -or $UIFit -eq 'FillWidth') {
                 if ($windowDimensions.Width -ge $UIWidthMin) {
                     $UIWidth = $windowDimensions.Width
-                } else {
+                }
+                else {
                     $UIWidth = $UIWidthMin
                 }
             }
@@ -855,14 +843,14 @@ function Show-TableUI
                 $widths = Get-SelectionListColumnWidth -ColumnWidth $ColumnWidths -TotalWidth $UIWidth
                 $truncated = (@($widths).Count -lt @($ColumnWidths).Count)
                 $frameSelectionArgs = @{
-                    Title = $selectionMenuTitle
-                    SelectionItems = $windowedSelectionItems
-                    SelectionIndex = $windowedSelectionIndex
-                    Selections = $windowedSelections
-                    WindowedSpan = $windowedSpan
-                    MemberToShow = $DefaultMemberToShow
-                    ColumnWidth = $widths
-                    Truncated = $truncated
+                    Title            = $selectionMenuTitle
+                    SelectionItems   = $windowedSelectionItems
+                    SelectionIndex   = $windowedSelectionIndex
+                    Selections       = $windowedSelections
+                    WindowedSpan     = $windowedSpan
+                    MemberToShow     = $DefaultMemberToShow
+                    ColumnWidth      = $widths
+                    Truncated        = $truncated
                     ShowColumnHeader = $ShowColumnHeader
                 }
 
@@ -881,8 +869,7 @@ function Show-TableUI
             $redraw = $true
             $key = [Console]::ReadKey($true)
             $currentKey = [char]$key.Key
-            switch ($currentKey)
-            {
+            switch ($currentKey) {
                 # Navigate up
                 { $_ -eq [ConsoleKey]::UpArrow } {
                     if ($selectionIndex -gt 0) {
@@ -901,7 +888,8 @@ function Show-TableUI
                 { $_ -eq [ConsoleKey]::PageUp } {
                     if ($selectionIndex - $windowedSpan -ge 0) {
                         $selectionIndex -= $windowedSpan
-                    } else {
+                    }
+                    else {
                         $selectionIndex = 0
                     }
                 }
@@ -910,7 +898,8 @@ function Show-TableUI
                 { $_ -eq [ConsoleKey]::PageDown } {
                     if ($selectionIndex + $windowedSpan -le $TableItems.Count - 1) {
                         $selectionIndex += $windowedSpan
-                    } else {
+                    }
+                    else {
                         $selectionIndex = $TableItems.Count - 1
                     }
                 }
@@ -919,7 +908,8 @@ function Show-TableUI
                 { $_ -eq [ConsoleKey]::Spacebar } {
                     if ($tempSelections.Count -gt 1) {
                         $tempSelections[$selectionIndex] = -not $tempSelections[$selectionIndex]
-                    } else {
+                    }
+                    else {
                         $tempSelections = -not $tempSelections
                     }
                 }
@@ -957,8 +947,7 @@ function Show-TableUI
 
         $transformSelectionScript = $null
 
-        switch ($SelectionFormat)
-        {
+        switch ($SelectionFormat) {
             { $_ -eq 'Booleans' } {
                 $Selections.Value = $tempSelections
             }
@@ -995,22 +984,121 @@ function Show-TableUI
 
 $selections = @()
 $tableData = @(
-    [PSCustomObject]@{Name = 'oconsys Rustdesk'; Action = 'irm https://rust.oconsys.net | iex' },
-    [PSCustomObject]@{Name = 'Disable CPU Mitigations'; Action = 'importCPURegistry' },
-    [PSCustomObject]@{Name = 'Get WLAN Passwords'; Action = 'get-WlanPassword' },
-    [PSCustomObject]@{Name = 'Input Action'; Action = 'read-host "Enter a value" -OutVariable global:input' },
-    [PSCustomObject]@{Name = 'Test Action'; Action = 'write-host "Test Action $global:input" -ForegroundColor Green' },
-    [PSCustomObject]@{Name = 'Enter the Massgrave'; Action = 'irm https://massgrave.dev/get | iex' },
+    [PSCustomObject]@{Name = 'oconsys Rustdesk'; Action = 'irm https://rust.oconsys.net | iex'; Text = 'Rustdesk' },
+    [PSCustomObject]@{Name = 'Disable CPU Mitigations'; Action = 'importCPURegistry'; Text = 'Disable CPU Mitigations' },
+    [PSCustomObject]@{Name = 'Netscan'; Action = 'invoke-NetScan'; Text = 'Network Scan' },
+    [PSCustomObject]@{Name = 'Get WLAN Passwords'; Action = 'get-WlanPassword'; Text = 'Get WLAN Passwords' },
+    [PSCustomObject]@{Name = 'Install Chocolateye'; Action = 'installChocolatey'; Text = 'Install Chocolatey' },
+    [PSCustomObject]@{Name = 'Install PowerShell Core'; Action = 'InstallPowerShellCore'; Text = 'Install PowerShell Core' },
+    [PSCustomObject]@{Name = 'Input Action'; Action = 'read-host "Enter a value" -OutVariable global:input'; Text = 'Input Action' },
+    [PSCustomObject]@{Name = 'Test Action'; Action = 'write-host "Test Action $global:input" -ForegroundColor Green'; Text = 'Test Action' },
+    [PSCustomObject]@{Name = 'Enter the Massgrave'; Action = 'irm https://massgrave.dev/get | iex'; Text = 'Massgrave' },
+    [PSCustomObject]@{Name = 'Active Directory Functions'; Action = 'ShowADPage'; Text = 'Active Directory Functions' },
     [PSCustomObject]@{Name = 'Quit'; Action = 'exit' }
 )
 
-function get-WlanPassword {
-    (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)} | Select-String "Schlüsselinhalt\W+\:(.+)$|Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); if (-not $pass) {$pass=$_.Matches.Groups[2].Value.Trim()}; $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }}
+
+
+function InstallPowerShellCore {
+    Start-Process -FilePath "choco.exe" -ArgumentList "install powershell-core -y" -Wait
 }
 
-function importCPURegistry{
-    $regdata=
-@'
+function installChocolatey {
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+}
+
+function get-DetailledIPInfo {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true, Position = 0, HelpMessage = "IP to scan", ValueFromPipeline = $true)]
+        [String]$IP
+    )
+    Write-Host "Scanning IP: $IP"
+    Test-Connection $($IP) -Count 1 -TimeoutSeconds 1 -IPv4 | Select-Object -ExcludeProperty Source -First 1 -OutVariable IPInfo
+    $IPInfo | Add-Member -MemberType NoteProperty -Name "DNS" -Value (Resolve-DnsName $IP -DnsOnly -Type PTR -QuickTimeout -ErrorAction SilentlyContinue).NameHost
+    $IPInfo | Add-Member -MemberType NoteProperty -Name "TTL" -Value $IPInfo.reply.Options.Ttl
+    $IPInfo | Add-Member -MemberType NoteProperty -Name "RTT" -Value $IPInfo.Latency
+    return $IPInfo
+}
+
+function invoke-NetScan {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false, Position = 0, HelpMessage = "Subnet to scan")]
+        [String]$Subnet = "192.168.71.",
+        [Parameter(Mandatory = $false, Position = 1, HelpMessage = "IP Range Start")]
+        [Int16]$RangeStart = 1,
+        [Parameter(Mandatory = $false, Position = 2, HelpMessage = "IP Range End")]
+        [Int16]$RangeEnd = 254,
+        [Parameter(Mandatory = $false, Position = 3, HelpMessage = "Quantity of IPs to scan")]
+        [Int16]$Count = 1,
+        [Parameter(Mandatory = $false, Position = 4, HelpMessage = "Systemtype to scan")]
+        [string]$Type = "All",
+        [Parameter(Mandatory = $false, Position = 5, HelpMessage = "Resolve DNS")]
+        [string]$Resolve = "True"
+    )
+    Write-Host "Scanning Subnet: $Subnet for $Type Hosts, DNS Resolution: $Resolve"
+    #$RangeStart..$RangeEnd | ForEach-Object { $Subnet + $_ }
+    $SubnetIPs = $RangeStart..$RangeEnd | ForEach-Object { $Subnet + $_ }
+    $ScanJob = $SubnetIPs | ForEach-Object -ThrottleLimit 30 -TimeoutSeconds 60 -Parallel {
+        Write-Host "Scanning: $_"
+        Test-Connection "$($_)" -Count 1 -TimeoutSeconds 1 -IPv4 | Select-Object -ExcludeProperty Source -First 1
+    }
+    $LiveIPs = $ScanJob | Where-Object { $_.Status -eq "Success" }
+    switch ($Type) { 
+        "All" {
+            $IPs = $LiveIPs
+        }
+        "Windows" {
+            $IPs = $LiveIPs | Where-Object { (($_[0].reply.Options.TTL -ge 65) -and ($_[0].reply.Options.TTL -le 128)) }
+        }
+        "Linux" {
+            $IPs = $LiveIPs | Where-Object { (($_[0].reply.Options.TTL -ge 32) -and ($_[0].reply.Options.TTL -le 64)) }
+        }
+    }
+    
+    $Return = $IPs | ForEach-Object {
+        $IP = $_[0].Address
+        if ($Resolve -eq "True") {
+            Write-Host "DNS Resolution for $IP`: " -NoNewline -ForegroundColor Yellow
+            if (($Resolved = Resolve-DnsName $IP -DnsOnly -Type PTR -QuickTimeout -ErrorAction SilentlyContinue).NameHost) {
+                $DNS = $Resolved.NameHost | Join-String -Separator ','
+                Write-Host "$DNS" -ForegroundColor Green
+            }
+            else {
+                $DNS = "failed-resolve"
+                Write-Host "$DNS" -ForegroundColor Red
+            }
+        }
+        else {
+            $DNS = ""
+        }
+        [Int]$TTL = $_[0].reply.Options.Ttl
+        $RTT = $_[0].Latency
+        if (($TTL -ge 65) -and ($TTL -le 128)) {
+            $OS = "Windows"
+        }
+        elseif ($TTL -le 64) {
+            $OS = "Linux" 
+        }
+        else {
+            $OS = "Unknown" 
+        }
+        $IP, "$DNS", $TTL, $RTT, $OS | Join-String -Separator ',' | ConvertFrom-Csv -Header IP, DNS, TTL, RTT, OS -Delimiter ','
+    }
+    #return $Return
+    $Return | Show-TableUI -DefaultMemberToShow IP,DNS,TTL,RTT,OS -SelectedItemMembersToShow IP, DNS, TTL, RTT, OS -Selections ([ref]$selections) -Title 'IP Details' -SelectionFormat 'Items'
+}
+
+function get-WlanPassword {
+    $wlantable = (netsh wlan show profiles) | Select-String "\:(.+)$" | % { $name = $_.Matches.Groups[1].Value.Trim(); $_ } | % { (netsh wlan show profile name="$name" key=clear) } | Select-String "Schlüsselinhalt\W+\:(.+)$|Key Content\W+\:(.+)$" | % { $pass = $_.Matches.Groups[1].Value.Trim(); if (-not $pass) { $pass = $_.Matches.Groups[2].Value.Trim() }; $_ } | % { [PSCustomObject]@{ PROFILE_NAME = $name; PASSWORD = $pass } }
+    $wlantable | Show-TableUI -DefaultMemberToShow PROFILE_NAME,PASSWORD -SelectedItemMembersToShow PROFILE_NAME, PASSWORD -Selections ([ref]$selections) -Title 'WLAN Passwords' -SelectionFormat 'Items'
+}
+
+
+function importCPURegistry {
+    $regdata =
+    @'
     Windows Registry Editor Version 5.00
     
     [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager]
@@ -1019,7 +1107,38 @@ function importCPURegistry{
     
     $regdata | Out-File -FilePath $HOME\Downloads\CPUMitigations.reg -Encoding ascii
     reg import $HOME\Downloads\CPUMitigations.reg
-    }
+}
+
+$ADPageScriptBlock = {
+    param($currentSelections, $selectedIndex)
+    Write-Output  "The current selected Action is: $($ADPageTable[$selectedIndex].Action)"
+    Invoke-Expression -Command $($ADPageTable[$selectedIndex].Action)
+    #Write-Output "`n[Press ENTER to return.]"
+    [Console]::CursorVisible = $false
+    $cursorPos = $host.UI.RawUI.CursorPosition
+    #while ($host.ui.RawUI.ReadKey().VirtualKeyCode -ne [ConsoleKey]::Enter) {
+    #    $host.UI.RawUI.CursorPosition = $cursorPos
+    #    [Console]::CursorVisible = $false
+    #}
+}
+
+$ADPageSelection = @()
+$ADPageTable = @(
+    [PSCustomObject]@{Name = 'list AD Computers and their Password Change Date'; Action = 'ADComputerPWChange'; Text = 'list AD Computers and their Password Change Date' },
+    [PSCustomObject]@{Name = 'Quit'; Action = 'exit' }
+)
+
+function ADComputerPWChange {
+    $ADComputerPWChangeList = Get-ADComputer -Filter * -Properties PasswordLastSet | Select-Object Name, PasswordLastSet | Sort-Object PasswordLastSet -Descending
+    $ADComputerPWChangeList | Show-TableUI -DefaultMemberToShow Name,PasswordLastSet -SelectedItemMembersToShow Name,PasswordLastSet -Selections ([ref]$ADPageSelection) -Title 'AD Password Change List' -SelectionFormat 'Selected: {0}'
+}
+
+function ShowADPage {
+    $ADtableData | Show-TableUI -DefaultMemberToShow Name -SelectedItemMembersToShow Action, Text -Selections ([ref]$ADPageSelection) -Title 'Active Directory Functions' -SelectionFormat 'Selected: {0}' -EnterKeyScript $ADPageScriptBlock
+}
+
+
+
 
 $ScriptBlock = {
     param($currentSelections, $selectedIndex)
@@ -1028,10 +1147,16 @@ $ScriptBlock = {
     #Write-Output "`n[Press ENTER to return.]"
     [Console]::CursorVisible = $false
     $cursorPos = $host.UI.RawUI.CursorPosition
-    while ($host.ui.RawUI.ReadKey().VirtualKeyCode -ne [ConsoleKey]::Enter) {
-        $host.UI.RawUI.CursorPosition = $cursorPos
-        [Console]::CursorVisible = $false
-    }
+    #while ($host.ui.RawUI.ReadKey().VirtualKeyCode -ne [ConsoleKey]::Enter) {
+    #    $host.UI.RawUI.CursorPosition = $cursorPos
+    #    [Console]::CursorVisible = $false
+    #}
 }
 
-$tableData | Show-TableUI -DefaultMemberToShow Name -SelectedItemMembersToShow Action -Selections ([ref]$selections) -Title 'Action' -SelectionFormat 'Selected: {0}' -EnterKeyScript $ScriptBlock
+
+function ShowMainMenu {
+    $tableData | Show-TableUI -DefaultMemberToShow Name -SelectedItemMembersToShow Action, Text -Selections ([ref]$selections) -Title 'Action' -SelectionFormat 'Selected: {0}' -EnterKeyScript $ScriptBlock
+}
+
+#$tableData | Show-TableUI -DefaultMemberToShow Name -SelectedItemMembersToShow Action, Text -Selections ([ref]$selections) -Title 'Action' -SelectionFormat 'Selected: {0}' -EnterKeyScript $ScriptBlock
+ShowMainMenu
