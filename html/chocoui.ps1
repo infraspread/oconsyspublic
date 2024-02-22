@@ -604,7 +604,6 @@ function Write-FrameControls {
         # Set to indicate that columns have been dropped from the UI.
         [switch]$Truncated
     )
-    $Minimize = $true
 
     if ($Minimize) {
         Write-FrameContent -Truncated:$Truncated -AnsiiFormat "$($PSStyle.Background.BrightBlack)" -Content "Press '?' to show the controls menu."
@@ -1161,11 +1160,8 @@ $ChocoPackages = @()
 $ChocoPackageInfo = @()
 $ChocoPackageInfoTableData = @()
 $selections = @()
-$selection = @()
-
 
 $tableData = @(
-    [PSCustomObject]@{Name = 'PowerShell Menu'; Action = 'PSMenu'; Text = 'PowerShell Menu' },
     [PSCustomObject]@{Name = 'oconsys Rustdesk'; Action = 'irm https://rust.oconsys.net | iex'; Text = 'Rustdesk' },
     [PSCustomObject]@{Name = 'Disable CPU Mitigations'; Action = 'importCPURegistry'; Text = 'Disable CPU Mitigations' },
     [PSCustomObject]@{Name = 'Netscan'; Action = 'invoke-NetScan'; Text = 'Network Scan' },
@@ -1180,56 +1176,11 @@ $tableData = @(
     [PSCustomObject]@{Name = 'Quit'; Action = 'exit' }
 )
 
-$PSMenuScriptBlock = {
-    param($selection, $selectedIndex)
-    #    Write-Output "The current selected Action is: $($tableData[$selectedIndex].Action)"
-    Invoke-Expression -Command $($PSTableData[$selectedIndex].Action)
-    #while ($host.ui.RawUI.ReadKey().VirtualKeyCode -ne [ConsoleKey]::Enter) {
-    #    $host.UI.RawUI.CursorPosition = $cursorPos
-    #    [Console]::CursorVisible = $false
-    #}
-}
-
-$PSInfoPanelScriptBlock = {
-    param($selection, $selectedIndex)
-    #    Write-Output "The current selected Action is: $($tableData[$selectedIndex].Action)"
-    Invoke-Expression -Command $($PowerShellInfopanel[$selectedIndex].Action)
-
-    #while ($host.ui.RawUI.ReadKey().VirtualKeyCode -ne [ConsoleKey]::Enter) {
-    #    $host.UI.RawUI.CursorPosition = $cursorPos
-    #    [Console]::CursorVisible = $false
-    #}
-}
-
-
-function PSMenu {
-    $PSTableData | Show-TableUI -DefaultMemberToShow Name -SelectedItemMembersToShow Action, Text -Selections ([ref]$selection) -Title 'Action' -SelectionFormat 'Selected: {0}' -EnterKeyScript $PSMenuScriptBlock
-}
-
-function PowerShellInfopanel {
-    $PSInfoTable = @{
-        "PowerShell Process" = ($PID)
-        "PowerShell Version" = ($PSVersionTable)
-    }
-
-    $PSInfoTable | Show-TableUI -DefaultMemberToShow Name, Type -SelectedItemMembersToShow Action, Text -Selections ([ref]$selection) -Title 'PowerShell Info' -SelectionFormat 'Selected: {0}' -EnterKeyScript $PSMenuScriptBlock
-}
-
-function Get-PSExecutionPolicies {
-    Get-ExecutionPolicy -List | Show-TableUI -Title 'Execution Policies' -Selections ([ref]$selection) -DefaultMemberToShow 'Scope', 'ExecutionPolicy' -EnterKeyDescription "Press ENTER to show the selected policy." -SelectionFormat 'Selected: {0}' -EnterKeyScript $PSMenuScriptBlock
-}
-
-
-$PSTableData = @(
-    [PSCustomObject]@{Name = 'Execution Policies'; Action = 'Get-PSExecutionPolicies'; Text = 'List Powershell Execution Policies' },
-    [PSCustomObject]@{Name = 'PowerShell Infopanel'; Action = 'PowerShellInfopanel'; Text = 'PowerShell Infopanel' },
-    [PSCustomObject]@{Name = 'Quit'; Action = 'exit' }
-)
-
 
 function ChocoMenu {
     $ChocoMenuTableData | Show-TableUI -DefaultMemberToShow Name -SelectedItemMembersToShow Action, Text -Selections ([ref]$ChocoMenuSelection) -Title 'Action' -SelectionFormat 'Selected: {0}' -EnterKeyScript $ChocoMenuScriptBlock
 }
+
 
 
 $ChocoMenuTableData = @(
@@ -1241,8 +1192,10 @@ $ChocoMenuTableData = @(
 
 $ChocoMenuScriptBlock = {
     param($ChocoMenuSelection, $selectedIndex)
-    #    Write-Output "The current selected Action is: $($ChocoMenuTabledata[$selectedIndex].Action)"
-    Invoke-Expression -Command $($ChocoMenuTabledata[$selectedIndex].Action) | Out-Null
+    Write-Output "The current selected Action is: $($ChocoMenuTabledata[$selectedIndex].Action)"
+    Invoke-Expression -Command $($ChocoMenuTabledata[$selectedIndex].Action)
+    [Console]::CursorVisible = $false
+    $cursorPos = $host.UI.RawUI.CursorPosition
     #while ($host.ui.RawUI.ReadKey().VirtualKeyCode -ne [ConsoleKey]::Enter) {
     #    $host.UI.RawUI.CursorPosition = $cursorPos
     #    [Console]::CursorVisible = $false
@@ -1251,13 +1204,13 @@ $ChocoMenuScriptBlock = {
 
 $ChocoSearchSelectionScriptBlock = {
     param($ChocoPackageDetailSelection, $selectedIndex)
-    #    Write-Output "ChocoSearchSelectionScriptBlock: The current selected Action is: $($ChocoPackageTableData[$selectedIndex].Name)"
-    Set-Variable ProgressPreference SilentlyContinue; Get-ChocoPackageInfo -Name $($ChocoPackageTableData[$selectedIndex].Name) | Show-TableUI -Title "Package Info" -Selections ([ref]$ChocoPackageInfoSelection) -DefaultMemberToShow 'Title', 'Summary', 'TotalDownloads' -EnterKeyDescription "Press ENTER to show info for the selected package." -SelectionFormat 'Selected: {0}' -EnterKeyScript $ChocoPackageInfoScriptBlock
+    Write-Output "ChocoSearchSelectionScriptBlock: The current selected Action is: $($ChocoPackageTableData[$selectedIndex].Name)"
+    Get-ChocoPackageInfo -Name $($ChocoPackageTableData[$selectedIndex].Name) | Show-TableUI -Title "Detailled Package Info" -Selections ([ref]$ChocoPackageInfoSelection) -DefaultMemberToShow 'Title', 'Summary', 'TotalDownloads' -EnterKeyDescription "Press ENTER to show info for the selected package." -SelectionFormat 'Selected: {0}' -EnterKeyScript $ChocoPackageInfoScriptBlock
 }
 
 $ChocoPackageInfoScriptBlock = {
     param($ChocoPackageInfoSelection, $selectedIndex)
-    #    Write-Output "ChocoPackageInfoScriptBlock: The current selected Action is: $($ChocoPackageInfoTableData[$selectedIndex].Title)"
+    Write-Output "ChocoPackageInfoScriptBlock: The current selected Action is: $($ChocoPackageInfoTableData[$selectedIndex].Title)"
     getChocoPackageInfo -Name $($ChocoPackageTableData[$selectedIndex].Name)
 }
 
