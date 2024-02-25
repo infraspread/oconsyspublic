@@ -1,5 +1,8 @@
 # oconsys public repo
 
+## Profile
+curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/.bashrc -o ~/.bashrc
+
 * Rustdesk Github Nightly Downloader
 Usage
 ```powershell
