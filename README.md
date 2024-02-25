@@ -11,3 +11,8 @@ Usage
 irm https://raw.githubusercontent.com/infraspread/oconsyspublic/main/html/rustdeskdl_win.ps1 | iex
 ```
 
+# Docker Setup
+curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/docker_setup.sh -o docker_setup.sh
+
+
+
