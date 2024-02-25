@@ -1,5 +1,5 @@
 #!/bin/sh
-# usage (as root): curl -fsSL https://github.com/infraspread/oconsyspublic/docker_setup.sh -o docker_setup.sh
+# usage (as root): curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/docker_setup.sh -o docker_setup.sh
 apt-get update
 apt-get install sudo curl -y
 cd ~
