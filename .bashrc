@@ -97,10 +97,10 @@ fi
 # Turn the prompt symbol red if the user is root
 if [ $(id -u) -eq 0 ]; then # you are root, make the prompt red
     # My Packets to install
-    alias aptmystuff='apt-get update && apt-get install -y expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo'
+    alias aptmystuff='apt-get update && apt-get install -y expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag'
 #    PS1="[\e[01;34m\u @ \h\e[00m]----[\e[01;34m$(pwd)\e[00m]\n\e[01;31m#\e[00m "
 else
-    alias aptmystuff='echo apt-get update && echo apt-get install -y expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo'
+    alias aptmystuff='echo apt-get update && echo apt-get install -y expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag'
 #    PS1="[\e[01;34m\u @ \h\e[00m]----[\e[01;34m$(pwd)\e[00m]\n$ "
 fi
 
