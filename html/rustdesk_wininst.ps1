@@ -13,9 +13,9 @@ nat_type = 1
 serial = 0
 
 [options]
-api-server = "$wanipreg"
-custom-rendezvous-server = "$wanipreg"
-relay-server = "$wanipreg"
+api-server = "wanipreg"
+custom-rendezvous-server = "wanipreg"
+relay-server = "wanipreg"
 direct-server = 'Y'
 enable-audio = 'N'
 key = "keyreg"
