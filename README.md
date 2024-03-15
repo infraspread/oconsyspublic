@@ -1,5 +1,8 @@
 # oconsys public repo
 
+## Matrix Setup
+curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/matrix.sh -o ~/matrix.sh; cd ~; bash matrix.sh
+
 ## Profile
 curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/.bashrc -o ~/.bashrc; source ~/.bashrc
 
