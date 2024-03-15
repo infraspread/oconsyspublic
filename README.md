@@ -2,6 +2,7 @@
 
 ## Matrix Setup
 curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/matrix.sh -o ~/matrix.sh; cd ~; bash matrix.sh
+curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/install_matrix_debian_rc.sh -o ~/install_matrix_debian_rc.sh; cd ~; chmod +x install_matrix_debian_rc.sh; ./install_matrix_debian_rc.sh
 
 ## Profile
 curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/.bashrc -o ~/.bashrc; source ~/.bashrc
