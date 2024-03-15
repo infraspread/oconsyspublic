@@ -18,7 +18,7 @@ custom-rendezvous-server = "$wanipreg"
 relay-server = "$wanipreg"
 direct-server = 'Y'
 enable-audio = 'N'
-key = "$ADMINTOKEN"
+key = "keyreg"
 allow-remove-wallpaper = 'Y'
 stop-service = 'N'
 '@
