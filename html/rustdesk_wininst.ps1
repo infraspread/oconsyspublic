@@ -6,6 +6,7 @@ $DownloadControl = @{
 
 $StandardFilter = 'x86_64.exe'
 $ScriptPath = $($PSCommandPath)
+$CurDir=$(get-location)
 
 $global:RustdeskConfig = @'
 rendezvous_server = 'wanipreg:21116'
@@ -212,7 +213,7 @@ function RustdeskMenu {
 
 }
 
-
 Set-Location ~
 #Check Script is running with Elevated Privileges
-# test-RunAsAdministrator
+RustdeskMenu
+cd $CurDir
