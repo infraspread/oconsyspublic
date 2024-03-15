@@ -1,12 +1,33 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
 
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
 *) return ;;
 esac
+
+function echo_red() {
+    echo -e "\e[31m$1\e[0m"
+}
+function echo_orange() {
+    echo -e "\e[33m$1\e[0m"
+}
+function echo_green() {
+    echo -e "\e[32m$1\e[0m"
+}
+function echo_blue() {
+    echo -e "\e[34m$1\e[0m"
+}
+function echo_purple() {
+    echo -e "\e[35m$1\e[0m"
+}
+function echo_cyan() {
+    echo -e "\e[36m$1\e[0m"
+}
+function echo_white() {
+    echo -e "\e[37m$1\e[0m"
+}
+
+
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -74,18 +95,10 @@ esac
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
     if [ -f /usr/share/bash-completion/bash_completion ]; then
         . /usr/share/bash-completion/bash_completion
@@ -93,22 +106,22 @@ if ! shopt -oq posix; then
         . /etc/bash_completion
     fi
 fi
+for cmd in g++ gas head make ld ping6 tail traceroute6 $( ls /usr/share/grc/ ); do
+  cmd="${cmd##*conf.}"
+  type "${cmd}" >/dev/null 2>&1 && alias "${cmd}"="$( which grc ) --colour=auto ${cmd}"
+done
 
-# Turn the prompt symbol red if the user is root
-if [ $(id -u) -eq 0 ]; then # you are root, make the prompt red
-    # My Packets to install
-    alias aptmystuff='apt-get update && apt-get install -y expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag'
-#    PS1="[\e[01;34m\u @ \h\e[00m]----[\e[01;34m$(pwd)\e[00m]\n\e[01;31m#\e[00m "
-else
-    alias aptmystuff='echo apt-get update && echo apt-get install -y expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag'
-#    PS1="[\e[01;34m\u @ \h\e[00m]----[\e[01;34m$(pwd)\e[00m]\n$ "
+aptstuff='bind9-dnsutils grc expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag'
+
+if [ $(id -u) -eq 0 ]; then     # root
+    alias aptmystuff='apt-get update && apt-get install -y $aptstuff'
+else                            # non-root
+    alias aptmystuff='sudo apt-get update && sudo apt-get install -y $aptstuff'
 fi
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias dir='dir --color=auto'
-    alias vdir='vdir --color=auto'
 
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
@@ -117,35 +130,9 @@ fi
 
 # some more ls aliases
 alias ll='ls -lAp -h --group-directories-first --color=auto'
+alias ll='grc ls -lAp -h --color=always --group-directories-first'
 alias la='ls -Aa'
 alias l='ls -CF'
-
-# Asciinema
-if ! [ -f ~/.config/asciinema/install-id ]; then
-    mkdir -p ~/.config/asciinema
-    echo "33592392-0bb7-4fc1-a4d9-718c519ae737" >>~/.config/asciinema/install-id
-fi
-export ASCIINEMA_API_URL=https://asciinema.oconsys.net
-alias rec='asciinema rec -t $1'
-
-# nano ~/.bashrc and after leaving editor source the file
-alias nbrc='nano ~/.bashrc && source ~/.bashrc'
-# search history for command
-alias gh='history|grep'
-# copy with progress using rsync
-alias cpv='rsync -ah --info=progress2'
-# color ip output
-alias ip='ip -color=auto'
-# dmesg
-alias dmesg='dmesg --color=always | less'
-
-# Python VENV
-# create new Python3 Virtual Environment in current Directory
-alias ve='python3 -m venv ./venv'
-# activate Python Virtual Environment
-alias va='source ./venv/bin/activate'
-# go to webserver Dir
-alias www='cd /var/www/'
 
 function lll() {
     myVAR="$*"
@@ -166,9 +153,38 @@ function chownsub() {
     eval $myCOMMAND
 }
 
+# Asciinema
+if ! [ -f ~/.config/asciinema/install-id ]; then
+    mkdir -p ~/.config/asciinema
+    echo "33592392-0bb7-4fc1-a4d9-718c519ae737" >>~/.config/asciinema/install-id
+fi
+export ASCIINEMA_API_URL=https://asciinema.oconsys.net
+alias rec='asciinema rec -t $1'
+
+# nano ~/.bashrc and after leaving editor source the file
+alias nbrc='nano ~/.bashrc && source ~/.bashrc'
+# search history for command
+alias higr='history|grep'
+# copy with progress using rsync
+alias cpv='rsync -ah --info=progress2'
+# color ip output
+alias ip='ip -color=auto'
+# dmesg
+alias dmesg='dmesg --color=always | less'
+# netstat
+alias net='grc netstat -lntp'
+# services
+alias services='grc systemctl list-units'
+
+# Python VENV
+# create new Python3 Virtual Environment in current Directory
+alias ve='python3 -m venv ./venv'
+# activate Python Virtual Environment
+alias va='source ./venv/bin/activate'
+# go to webserver Dir
+alias www='cd /var/www/'
 
 
 # Print Greeting
 neofetch
 alias | column -t -l 3 -N DEL,Alias,Command -s ' ','=' -H DEL
-cd ~
