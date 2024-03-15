@@ -8,14 +8,14 @@ $StandardFilter = 'x86_64.exe'
 $ScriptPath = $($PSCommandPath)
 
 $global:RustdeskConfig = @'
-rendezvous_server = '$RENDEZVOUSSERVER:21116'
+rendezvous_server = 'wanipreg:21116'
 nat_type = 1
 serial = 0
 
 [options]
-api-server = "$APISERVER"
-custom-rendezvous-server = "$RENDEZVOUSSERVER"
-relay-server = "$RELAYSERVER"
+api-server = "$wanipreg"
+custom-rendezvous-server = "$wanipreg"
+relay-server = "$wanipreg"
 direct-server = 'Y'
 enable-audio = 'N'
 key = "$ADMINTOKEN"
