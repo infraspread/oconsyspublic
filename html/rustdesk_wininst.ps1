@@ -180,6 +180,7 @@ function RustdeskMenu {
     }
     $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
     Write-Verbose "RustdeskAction: $($RustdeskAction.Key)"
+        switch ($($RustdeskAction.Key)) {
         "AiO" {
             Write-Verbose "Installing RustDesk and configuring with your Rendezvous server"
             get-GithubRelease @DownloadControl -Destination $targetdir
