@@ -7,11 +7,7 @@ $DownloadControl = @{
 $StandardFilter = 'x86_64.exe'
 $ScriptPath = $($PSCommandPath)
 $CurDir=$(get-location)
-
-$string="{\"host\":\"${wanipreg}\",\"key\":\"${keyreg}\",\"api\":\"https://${wanipreg}\"}"
-$string64=$(echo -n "$string" | base64 -w 0 | tr -d '=')
-$RUSTDESK_CONFIG=$(echo -n "$string64" | rev)
-write-host $RUSTDESK_CONFIG
+$RUSTDESK_CONFIG="rustconf"
 
 $global:RustdeskConfig = @'
 rendezvous_server = 'wanipreg:21116'
