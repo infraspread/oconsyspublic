@@ -45,26 +45,28 @@ Function test-RunAsAdministrator() {
     
 function RustdeskWaitService {
     $global:ServiceName = 'Rustdesk'
-    $global:arrService = Get-Service -Name $($global:ServiceName) -ErrorAction SilentlyContinue
-    if ($null -eq $($global:arrService)) {
-        Set-Location $env:ProgramFiles\RustDesk
-        Start-Process .\rustdesk.exe --install-service -Verb RunAs
-        Start-Sleep -seconds 20
-    }
+    $global:arrService = $(Get-Service -Name $($global:ServiceName) -ErrorAction SilentlyContinue)
     while ($($global:arrService).Status -ne 'Running') {
-        Start-Service $ServiceName -ErrorAction SilentlyContinue
-        Start-Sleep -seconds 8
-        $global:arrService.Refresh()
+        $RustdeskInstalled = Test-Path "C:\Program Files\RustDesk"
+        if ($RustdeskInstalled) {
+            Set-Location $env:ProgramFiles\RustDesk
+            Start-Process .\rustdesk.exe --install-service -Verb RunAs
+            Start-Sleep -Seconds 6
+        }
+        Start-Sleep -Seconds 6
+        Start-Service $global:ServiceName -ErrorAction SilentlyContinue
+        return
     }
 }
-
 function DownloadLegacy {
     param (
         [string]$url,
         [string]$targetFile
     )
     Write-Verbose "Legacy Downloading: $url to $targetFile"
-    Invoke-WebRequest -Uri  $url -OutFile $targetFile
+    $progressPreference = 'silentlyContinue'
+    Invoke-WebRequest -Uri $url -OutFile $targetFile
+    $progressPreference = 'Continue'
     return $targetFile
 }
 
@@ -214,6 +216,5 @@ function RustdeskMenu {
 }
 
 Set-Location ~
-#Check Script is running with Elevated Privileges
 RustdeskMenu
 cd $CurDir
