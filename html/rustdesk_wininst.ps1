@@ -176,10 +176,6 @@ function RustdeskMenu {
     param (
         [string]$RustdeskPath = "C:\Program Files\RustDesk"
     )
-$string="{\"host\":\"${wanip}\",\"key\":\"${keyreg}\",\"api\":\"https://${wanip}\"}"
-$string64=$(echo -n "$string" | base64 -w 0 | tr -d '=')
-$RUSTDESK_CONFIG=$(echo -n "$string64" | rev)
-write-host $RUSTDESK_CONFIG
     $RustdeskMenu = @{
         'AiO'        = 'Install or Upgrade RustDesk and Configure with your Rendezvous server'
         'Upgrade'    = 'upgrade or install RustDesk, leave configuration as is'
