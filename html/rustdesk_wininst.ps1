@@ -44,20 +44,25 @@ Function test-RunAsAdministrator() {
 }
     
 function RustdeskWaitService {
-    $global:ServiceName = 'Rustdesk'
-    $global:arrService = $(Get-Service -Name $($global:ServiceName) -ErrorAction SilentlyContinue)
-    while ($($global:arrService).Status -ne 'Running') {
-        $RustdeskInstalled = Test-Path "C:\Program Files\RustDesk"
-        if ($RustdeskInstalled) {
-            Set-Location $env:ProgramFiles\RustDesk
-            Start-Process .\rustdesk.exe --install-service -Verb RunAs
-            Start-Sleep -Seconds 6
-        }
+    Do {
+        $RustdeskInstalled = Test-Path "C:\Program Files\RustDesk\rustdesk.exe"
+        Start-Sleep 1
+    } Until ($RustdeskInstalled)
+    
+    
+    if ($null -eq $(Get-Service -Name "Rustdesk" -ErrorAction SilentlyContinue)) {
+        Write-Host "service not installed"
+        Start-Process -FilePath "$env:ProgramFiles\RustDesk\rustdesk.exe" -ArgumentList "--install-service" -Verb RunAs -ErrorAction SilentlyContinue
         Start-Sleep -Seconds 6
-        Start-Service $global:ServiceName -ErrorAction SilentlyContinue
-        return
     }
+    Start-Sleep -Seconds 6
+    if ($(Get-Service -Name "Rustdesk" -ErrorAction SilentlyContinue).Status -ne 'Running') {
+        Write-Host "service not running"
+        Start-Service RustDesk -ErrorAction SilentlyContinue
+    }
+    return
 }
+
 function DownloadLegacy {
     param (
         [string]$url,
@@ -179,7 +184,7 @@ function RustdeskMenu {
         "AiO" {
             Write-Verbose "Installing RustDesk and configuring with your Rendezvous server"
             get-GithubRelease @DownloadControl -Destination $targetdir
-            Get-Service -Name RustDesk | Stop-Service -ErrorAction SilentlyContinue
+            Get-Service -Name RustDesk -ErrorAction SilentlyContinue | Stop-Service -ErrorAction SilentlyContinue
             Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install" -Verb RunAs
             $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
             $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
@@ -188,10 +193,7 @@ function RustdeskMenu {
             Set-Location $env:ProgramFiles\RustDesk
             .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
             $rustdeskResult = "Successfully Installed Rustdesk, your ID is $RustdeskID"
-            write-host $rustdeskResult -ForegroundColor Green
-            # import Windows Forms assembly
-            Add-Type -AssemblyName System.Windows.Forms
-            [System.Windows.Forms.MessageBox]::Show($rustdeskResult,"Rustdesk Installation",0)
+            Write-Host $rustdeskResult -ForegroundColor Green
         }
         "Upgrade" {
             Write-Verbose "Upgrading RustDesk"
@@ -200,7 +202,7 @@ function RustdeskMenu {
             Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install" -Verb RunAs
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
         }
-        "Configure" { 
+        "Configure" {
             Get-Service -Name RustDesk | Stop-Service -Force -ErrorAction SilentlyContinue
             $RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
             $RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
@@ -212,6 +214,7 @@ function RustdeskMenu {
             Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
         }
     }
+
 
 }
 
