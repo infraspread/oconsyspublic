@@ -8,7 +8,10 @@ $StandardFilter = 'x86_64.exe'
 $ScriptPath = $($PSCommandPath)
 $CurDir=$(get-location)
 
-$RUSTDESK_CONFIG="Qfi0zcz92SwU3RLV1MYV0Yr8WR6FEbIFFMsJFN2U3NRd3RRlWYMFUMKFTRr1UTiojI5V2aiwiIiojIpBXYiwiI0kTMuEzNugjNx4iM5EjI6ISehxWZyJCLiQTOx4SM34CO2EjLykTMiojI0N3boJye"
+$string="{\"host\":\"${wanip}\",\"key\":\"${keyreg}\",\"api\":\"https://${wanip}\"}"
+$string64=$(echo -n "$string" | base64 -w 0 | tr -d '=')
+$RUSTDESK_CONFIG=$(echo -n "$string64" | rev)
+write-host $RUSTDESK_CONFIG
 
 $global:RustdeskConfig = @'
 rendezvous_server = 'wanipreg:21116'
@@ -16,7 +19,7 @@ nat_type = 1
 serial = 0
 
 [options]
-api-server = "wanipreg"
+api-server = "https://wanipreg"
 custom-rendezvous-server = "wanipreg"
 relay-server = "wanipreg"
 direct-server = 'Y'
