@@ -8,6 +8,8 @@ $StandardFilter = 'x86_64.exe'
 $ScriptPath = $($PSCommandPath)
 $CurDir=$(get-location)
 
+$RUSTDESK_CONFIG="Qfi0zcz92SwU3RLV1MYV0Yr8WR6FEbIFFMsJFN2U3NRd3RRlWYMFUMKFTRr1UTiojI5V2aiwiIiojIpBXYiwiI0kTMuEzNugjNx4iM5EjI6ISehxWZyJCLiQTOx4SM34CO2EjLykTMiojI0N3boJye"
+
 $global:RustdeskConfig = @'
 rendezvous_server = 'wanipreg:21116'
 nat_type = 1
@@ -180,20 +182,23 @@ function RustdeskMenu {
     }
     $RustdeskMenu | Out-GridView -Title "Select RustDesk action" -OutputMode Single -OutVariable RustdeskAction
     Write-Verbose "RustdeskAction: $($RustdeskAction.Key)"
-    switch ($($RustdeskAction.Key)) {
         "AiO" {
             Write-Verbose "Installing RustDesk and configuring with your Rendezvous server"
             get-GithubRelease @DownloadControl -Destination $targetdir
-            Get-Service -Name RustDesk -ErrorAction SilentlyContinue | Stop-Service -ErrorAction SilentlyContinue
+            Get-Service -Name RustDesk -ErrorAction SilentlyContinue | Stop-Service -ErrorAction SilentlyContinue -Force
             Start-Process -FilePath $global:RustdeskUpdateExe -ArgumentList "--silent-install" -Verb RunAs
-            $global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
-            $global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
-            $global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
+            #$global:RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
+            #$global:RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue -Force
+            #$global:RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
             RustdeskWaitService
             Set-Location $env:ProgramFiles\RustDesk
+            #Get-Process -Name "Rust*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Process -WorkingDirectory "$env:ProgramFiles\RustDesk\" -FilePath "$env:ProgramFiles\RustDesk\rustdesk.exe" -ArgumentList "--config $RUSTDESK_CONFIG" -Verb RunAs -ErrorAction SilentlyContinue
+            
             .\rustdesk.exe --get-id | Write-Output -OutVariable RustdeskID
             $rustdeskResult = "Successfully Installed Rustdesk, your ID is $RustdeskID"
-            Write-Host $rustdeskResult -ForegroundColor Green
+            write-host $rustdeskResult -ForegroundColor Green
+            
         }
         "Upgrade" {
             Write-Verbose "Upgrading RustDesk"
@@ -203,19 +208,19 @@ function RustdeskMenu {
             Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
         }
         "Configure" {
-            Get-Service -Name RustDesk | Stop-Service -Force -ErrorAction SilentlyContinue
-            $RustdeskConfig | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
-            $RustdeskDefault | Out-File -FilePath "$env:USERPROFILE\AppData\Roaming\RustDesk\config\RustDesk_default.toml" -ErrorAction SilentlyContinue -Force
-            $RustdeskConfig | Out-File -FilePath "C:\Windows\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\RustDesk2.toml" -ErrorAction SilentlyContinue
-            Get-Service -Name RustDesk | Start-Service -ErrorAction SilentlyContinue
+            Get-Service -Name RustDesk -ErrorAction SilentlyContinue | Stop-Service -Force -ErrorAction SilentlyContinue
+            Get-Process -Name "Rust*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Process -FilePath "$env:ProgramFiles\RustDesk\rustdesk.exe" -ArgumentList "--config $RUSTDESK_CONFIG" -Verb RunAs -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 3
+            Get-Service -Name RustDesk -ErrorAction SilentlyContinue | Start-Service -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 3
+            Start-Process -FilePath "$env:ProgramFiles\RustDesk\rustdesk.exe" -WorkingDirectory "$env:ProgramFiles\RustDesk\"
         }
         "Chocolatey" {
             Write-Verbose "Install Chocolatey"
             Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
         }
     }
-
-
 }
 
 Set-Location ~
