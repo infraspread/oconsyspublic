@@ -1,5 +1,8 @@
 # oconsys public repo
 
+## Rustdesk Server Install
+curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/rustdesk_server_install.sh -o ~/rustdesk_server_install.sh; chmod +x ~/rustdesk_server_install.sh; ~/rustdesk_server_install.sh
+
 ## asciinema v3
 curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/asciinema -o /usr/bin/asciinema; chmod +x /usr/bin/asciinema
 
