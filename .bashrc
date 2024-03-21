@@ -111,7 +111,7 @@ for cmd in g++ gas head make ld ping6 tail traceroute6 $( ls /usr/share/grc/ ); 
   type "${cmd}" >/dev/null 2>&1 && alias "${cmd}"="$( which grc ) --colour=auto ${cmd}"
 done
 
-aptstuff='bind9-dnsutils grc expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag'
+aptstuff='bind9-dnsutils grc expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag python ansible'
 
 if [ $(id -u) -eq 0 ]; then     # root
     alias aptmystuff='apt-get update && apt-get install -y $aptstuff'
