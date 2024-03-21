@@ -159,7 +159,16 @@ if ! [ -f ~/.config/asciinema/install-id ]; then
     echo "33592392-0bb7-4fc1-a4d9-718c519ae737" >>~/.config/asciinema/install-id
 fi
 export ASCIINEMA_API_URL=https://asciinema.oconsys.net
-alias rec='asciinema rec -t $1'
+
+function record(){
+    TITLE="$*"
+    if [ -z "$TITLE" ]; then
+        echo "Usage: record RecordTitle"
+    else
+    myCOMMAND="unbuffer asciinema rec -t $TITLE --overwrite -i 1 ~/"$TITLE".cast"
+    eval "$myCOMMAND"
+    fi
+}
 
 # nano ~/.bashrc and after leaving editor source the file
 alias nbrc='nano ~/.bashrc && source ~/.bashrc'
