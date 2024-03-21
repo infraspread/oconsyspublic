@@ -7,6 +7,7 @@ curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/rust
 curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/asciinema -o /usr/bin/asciinema; chmod +x /usr/bin/asciinema
 
 ## Matrix Setup
+curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/inst_matrix.sh -o ~/inst_matrix.sh; bash ~/matrix.sh
 curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/matrix.sh -o ~/matrix.sh; cd ~; bash matrix.sh
 curl -fsSL https://raw.githubusercontent.com/infraspread/oconsyspublic/main/install_matrix_debian_rc.sh -o ~/install_matrix_debian_rc.sh; cd ~; chmod +x install_matrix_debian_rc.sh; ./install_matrix_debian_rc.sh
 
