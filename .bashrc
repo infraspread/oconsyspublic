@@ -1,8 +1,8 @@
 
 # If not running interactively, don't do anything
 case $- in
-*i*) ;;
-*) return ;;
+    *i*) ;;
+    *) return ;;
 esac
 
 function echo_red() {
@@ -58,7 +58,7 @@ fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-xterm-color | *-256color) color_prompt=yes ;;
+    xterm-color | *-256color) color_prompt=yes ;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
@@ -86,10 +86,10 @@ fi
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
-xterm* | rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    xterm* | rxvt*)
+        PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
     ;;
-*) ;;
+    *) ;;
 esac
 
 # colored GCC warnings and errors
@@ -102,16 +102,12 @@ fi
 if ! shopt -oq posix; then
     if [ -f /usr/share/bash-completion/bash_completion ]; then
         . /usr/share/bash-completion/bash_completion
-    elif [ -f /etc/bash_completion ]; then
+        elif [ -f /etc/bash_completion ]; then
         . /etc/bash_completion
     fi
 fi
-for cmd in g++ gas head make ld ping6 tail traceroute6 $( ls /usr/share/grc/ ); do
-  cmd="${cmd##*conf.}"
-  type "${cmd}" >/dev/null 2>&1 && alias "${cmd}"="$( which grc ) --colour=auto ${cmd}"
-done
 
-aptstuff='bind9-dnsutils grc expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag python ansible'
+aptstuff='bind9-dnsutils grc expect git mc nano neofetch cowsay asciinema net-tools htop cmatrix lolcat aewan bash-completion sudo silversearcher-ag python3 ansible neofetch'
 
 if [ $(id -u) -eq 0 ]; then     # root
     alias aptmystuff='apt-get update && apt-get install -y $aptstuff'
@@ -122,7 +118,7 @@ fi
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-
+    
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
@@ -130,7 +126,6 @@ fi
 
 # some more ls aliases
 alias ll='ls -lAp -h --group-directories-first --color=auto'
-alias ll='grc ls -lAp -h --color=always --group-directories-first'
 alias la='ls -Aa'
 alias l='ls -CF'
 
@@ -165,19 +160,19 @@ function record(){
     if [ -z "$TITLE" ]; then
         echo "Usage: record RecordTitle"
     else
-    myCOMMAND="unbuffer asciinema rec -t $TITLE --overwrite -i 1 ~/"$TITLE".cast"
-    eval "$myCOMMAND"
+        myCOMMAND="unbuffer asciinema rec -t $TITLE --overwrite -i 1 ~/"$TITLE".cast"
+        eval "$myCOMMAND"
     fi
 }
 
 # nano ~/.bashrc and after leaving editor source the file
 alias nbrc='nano ~/.bashrc && source ~/.bashrc'
 # search history for command
-alias higr='history|grep'
+alias higr='history | grep'
 # copy with progress using rsync
 alias cpv='rsync -ah --info=progress2'
 # color ip output
-alias ip='ip -color=auto'
+alias ipa='ip a --color=auto'
 # dmesg
 alias dmesg='dmesg --color=always | less'
 # netstat
@@ -193,6 +188,10 @@ alias va='source ./venv/bin/activate'
 # go to webserver Dir
 alias www='cd /var/www/'
 
+for cmd in g++ gas head make ld ping6 tail traceroute6 $( ls /usr/share/grc/ ); do
+    cmd="${cmd##*conf.}"
+    type "${cmd}" >/dev/null 2>&1 && alias "${cmd}"="$( which grc ) --colour=auto ${cmd}"
+done
 
 # Print Greeting
 neofetch
